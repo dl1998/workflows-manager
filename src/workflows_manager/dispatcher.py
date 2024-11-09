@@ -40,6 +40,12 @@ def get_instance_parameters(instance: workflow.Step) -> Dict[str, Any]:
 
 
 class ExceptionThread(Thread):
+    """
+    A class to run a thread that can catch exceptions.
+
+    :ivar exception: The exception caught by the thread.
+    :vartype exception: Optional[Exception]
+    """
     exception: Optional[Exception]
 
     def __init__(self, *args, **kwargs):
@@ -47,6 +53,9 @@ class ExceptionThread(Thread):
         self.exception = None
 
     def run(self):
+        """
+        A method to run the thread and catch exceptions.
+        """
         try:
             if self._target:
                 self._target(*self._args, **self._kwargs)
