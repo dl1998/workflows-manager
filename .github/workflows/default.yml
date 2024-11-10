@@ -27,7 +27,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
       - name: Install Hatch
-        uses: pypa/hatch
+        run: python3 -m pip install hatch
       - name: Setup environment
         run: hatch env +py ${{ matrix.python-version }} create test
       - name: Run Pylint
@@ -41,9 +41,9 @@ jobs:
           level: warning
           glob_pattern: "src/**/*.py"
       - name: Unit Tests
-        run: hatch run +py ${{ matrix.python-version }} test:unit-tests
+        run: hatch run +py=${{ matrix.python-version }} test:unit-tests
       - name: Generate XML coverage report
-        run: hatch run +py ${{ matrix.python-version }} test:coverage xml
+        run: hatch run +py=${{ matrix.python-version }} test:coverage xml
       - name: Get Coverage
         uses: orgoro/coverage@v3.1
         with:
@@ -53,7 +53,7 @@ jobs:
       - name: Retrieve Total Coverage
         id: coverage
         if: '!cancelled()'
-        run: echo "TOTAL_COVERAGE=$(coverage report | grep TOTAL | awk '{ print $4 }' | sed 's/%//g')" >> "$GITHUB_ENV"
+        run: echo "TOTAL_COVERAGE=$(hatch run +py=${{ matrix.python-version }} test:coverage report | grep TOTAL | awk '{ print $4 }' | sed 's/%//g')" >> "$GITHUB_ENV"
       - name: Retrieve Coverage Color
         if: '!cancelled()'
         uses: jannekem/run-python-script-action@v1

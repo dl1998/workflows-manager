@@ -61,9 +61,13 @@ path = "src/workflows_manager/__version__.py"
 
 [tool.hatch.envs.test]
 dependencies = [
+  "PyYaml==6.0.2",
   "pytest==8.3.3",
   "coverage==7.6.4",
 ]
+
+[tool.hatch.envs.test.scripts]
+unit-tests = "coverage run --source=\"src\" -m pytest tests/workflows_manager/unit_tests"
 
 [[tool.hatch.envs.test.matrix]]
 python = ["3.9", "3.10", "3.11", "3.12", "3.13"]
