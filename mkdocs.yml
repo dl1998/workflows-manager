@@ -95,7 +95,7 @@ plugins:
 extra:
   version:
     provider: mike
-  workflows_version: !ENV workflows_version
+  workflows_version: !ENV WORKFLOWS_VERSION
 
 
 nav:
