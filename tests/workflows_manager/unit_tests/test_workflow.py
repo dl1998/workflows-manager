@@ -125,9 +125,9 @@ class TestStepPath:
 
 
 class TestStepInformation:
-    def test_dict(self, steps_information: StepsInformation, steps_information_dictionary: List[Dict]):
+    def test_to_dict(self, steps_information: StepsInformation, steps_information_dictionary: List[Dict]):
         step_information = steps_information.steps[StepPath(None, StepType.WORKFLOW, 'workflow_step')]
-        assert step_information.dict() == steps_information_dictionary
+        assert step_information.to_dict() == steps_information_dictionary
 
 
 class TestStepsInformation:
@@ -148,12 +148,12 @@ class TestStepsInformation:
         steps_information = StepsInformation()
         assert steps_information.first_step is None
 
-    def test_dict(self, steps_information: StepsInformation,
-                                    steps_information_dictionary: List[Dict]):
+    def test_to_dict(self, steps_information: StepsInformation,
+                     steps_information_dictionary: List[Dict]):
         expected = {
             'steps': steps_information_dictionary
         }
-        assert steps_information.dict() == expected
+        assert steps_information.to_dict() == expected
 
 
 class TestWorkflowContext:

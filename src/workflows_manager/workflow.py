@@ -58,11 +58,10 @@ class StepPath:
     def __eq__(self, other: Optional['StepPath']) -> bool:
         if self is None or other is None:
             return False
-        else:
-            is_path_match = self.__path == other.__path
-            is_step_type_match = self.__step_type == other.__step_type
-            is_step_name_match = self.__step_name == other.__step_name
-            return is_path_match and is_step_type_match and is_step_name_match
+        is_path_match = self.__path == other.__path
+        is_step_type_match = self.__step_type == other.__step_type
+        is_step_name_match = self.__step_name == other.__step_name
+        return is_path_match and is_step_type_match and is_step_name_match
 
 
 @dataclass
@@ -105,23 +104,23 @@ class StepInformation:
     parent: Optional['StepInformation'] = field(default=None)
     children: Optional[List['StepInformation']] = field(default=None)
 
-    def dict(self) -> List[Dict]:
+    def to_dict(self) -> List[Dict]:
         """
         A method to convert the step information to a dictionary.
 
         :return: The step information as a dictionary.
         :rtype: List[Dict]
         """
-        steps = []
+        dictionary_steps = []
         step = self
         while step:
             children = None
             if step.children and step.path.type == StepType.PARALLEL:
                 children = []
                 for child in step.children:
-                    children.append(child.dict()[0])
+                    children.append(child.to_dict()[0])
             elif step.children and step.path.type == StepType.WORKFLOW:
-                children = step.children[0].dict()
+                children = step.children[0].to_dict()
             data = {
                 'type': step.path.type.value,
                 'name': step.path.name,
@@ -133,9 +132,9 @@ class StepInformation:
                 'return_value': step.return_value,
                 'children': children,
             }
-            steps.append(data)
+            dictionary_steps.append(data)
             step = step.next_step
-        return steps
+        return dictionary_steps
 
 
 @dataclass
@@ -157,9 +156,9 @@ class StepsInformation:
         :return: The status of the step.
         :rtype: StepInformation
         """
-        for key in self.steps.keys():
+        for key, step_information in self.steps.items():
             if key == step_path:
-                return self.steps[key]
+                return step_information
         return StepInformation(path=step_path, status=StepStatus.UNKNOWN)
 
     @property
@@ -175,7 +174,7 @@ class StepsInformation:
                 return step
         return None
 
-    def dict(self) -> Dict:
+    def to_dict(self) -> Dict:
         """
         A method to convert the steps information to a dictionary.
 
@@ -183,7 +182,7 @@ class StepsInformation:
         :rtype: Dict
         """
         return {
-            'steps': self.first_step.dict()
+            'steps': self.first_step.to_dict()
         }
 
 
