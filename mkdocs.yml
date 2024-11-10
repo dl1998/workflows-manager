@@ -101,11 +101,10 @@ extra:
 nav:
   - "Getting Started":
     - Installation: index.md
-    - Changelog: overview/changelog.md
-  - Setup:
-    - Write a Step: setup/write_a_step.md
-    - Configure Workflow: setup/configure_workflow.md
-    - CLI: setup/cli.md
+    - Setup:
+      - Write a Step: setup/write_a_step.md
+      - Configure Workflow: setup/configure_workflow.md
+      - CLI: setup/cli.md
   - Tutorials:
     - tutorials.md
   - Developers:
