@@ -3,6 +3,9 @@ on:
   pull_request:
     branches:
       - main
+  push:
+    branches:
+      - main
   workflow_dispatch:
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -11,12 +14,33 @@ env:
 permissions: write-all
 
 jobs:
-  standard-checks:
-    name: Perform Standard Checks
-    permissions:
-      contents: write
-      pull-requests: write
+  lint:
+    name: Lint Code
     runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Dependencies
+        run: |
+          python3 -m pip install hatch
+          hatch env create
+      - name: Run Pylint
+        uses: dciborow/action-pylint@0.1.0
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          reporter: github-pr-review
+          level: warning
+          glob_pattern: "src/**/*.py"
+
+  code-coverage:
+    name: Run Tests and Generate Coverage Report
+    runs-on: ubuntu-latest
+    needs: lint
     strategy:
       matrix:
         python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
@@ -27,39 +51,90 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install Hatch
-        run: python3 -m pip install hatch
-      - name: Setup environment
-        run: hatch env +py ${{ matrix.python-version }} create test
-      - name: Run Pylint
-        uses: dciborow/action-pylint@0.1.0
+      - name: Install Hatch and Dependencies
+        run: |
+          python3 -m pip install hatch
+          hatch env +py=${{ matrix.python-version }} create test
+      - name: Run Tests with Coverage
+        run: hatch run +py=${{ matrix.python-version }} test:coverage run --source="src" --data-file=".coverage.${{ matrix.python-version }}" -m pytest tests/workflows_manager/unit_tests
+      - name: Upload Coverage Data
+        uses: actions/upload-artifact@v3
         with:
-          github_token: ${{ secrets.github_token }}
-          reporter: github-pr-review
-          level: warning
-          glob_pattern: "src/**/*.py"
-      - name: Unit Tests
-        run: hatch run +py=${{ matrix.python-version }} test:unit-tests
-      - name: Generate XML coverage report
-        run: hatch run +py=${{ matrix.python-version }} test:coverage xml
-      - name: Get Coverage
+          name: coverage-reports
+          path: .coverage.${{ matrix.python-version }}
+          include-hidden-files: true
+
+  combine-coverage:
+    name: Combine Coverage Reports
+    runs-on: ubuntu-latest
+    needs: code-coverage
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Download Coverage Data Files
+        uses: actions/download-artifact@v3
+        with:
+          name: coverage-reports
+          path: ./coverage-reports
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install Coverage Tools
+        run: python3 -m pip install coverage
+      - name: Combine Coverage Data
+        run: |
+          coverage combine coverage-reports/.coverage.*
+          coverage xml -o combined-coverage.xml
+      - name: Upload Combined Coverage
+        uses: actions/upload-artifact@v3
+        with:
+          name: combined-coverage
+          path: combined-coverage.xml
+
+  check-pr-coverage:
+    name: Check Pull Request Coverage
+    runs-on: ubuntu-latest
+    needs: combine-coverage
+    if: github.event_name == 'pull_request'
+    steps:
+      - name: Download Combined Coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: combined-coverage
+          path: .
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Check Coverage Threshold
         uses: orgoro/coverage@v3.1
         with:
-          coverageFile: coverage.xml
+          coverageFile: combined-coverage.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           thresholdAll: ${{ env.THRESHOLD }}
-      - name: Retrieve Coverage and Version
-        id: info
-        run: |
-          echo "TOTAL_COVERAGE=$(hatch run +py=${{ matrix.python-version }} test:coverage report | grep TOTAL | awk '{ print $4 }' | sed 's/%//g')" >> "$GITHUB_ENV"
-          echo "VERSION=$(hatch version)" >> "$GITHUB_ENV"
-        shell: bash
+
+  upload-codecov:
+    name: Upload to Codecov
+    runs-on: ubuntu-latest
+    needs: combine-coverage
+    steps:
+      - name: Download Combined Coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: combined-coverage
+          path: .
+      - name: Upload to Codecov
+        uses: codecov/codecov-action@v4
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: combined-coverage.xml
 
   add-badges:
     name: Add Badges
     runs-on: ubuntu-latest
-    needs: standard-checks
-    if: github.ref == 'refs/heads/main'
+    needs: upload-codecov
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -67,9 +142,9 @@ jobs:
         id: coverage-color
         run: |
           if (( $(echo "${{ env.TOTAL_COVERAGE }} < ${{ env.THRESHOLD }} * 100" | bc -l) )); then
-            echo "color=red" >> "$GITHUB_ENV"
+            echo "color=red" >> $GITHUB_ENV
           else
-            echo "color=green" >> "$GITHUB_ENV"
+            echo "color=green" >> $GITHUB_ENV
           fi
       - name: Add Badges
         uses: wow-actions/add-badges@v1.1.0
@@ -108,7 +183,8 @@ jobs:
               },
               {
                 "badge": "https://img.shields.io/badge/Coverage-${{ env.TOTAL_COVERAGE }}%25-${{ env.color }}.svg?style=for-the-badge",
-                "alt": "Coverage ${{ env.TOTAL_COVERAGE }}%"
+                "alt": "Coverage ${{ env.TOTAL_COVERAGE }}%",
+                "link": "https://codecov.io/gh/${{ github.repository }}"
               }
             ]
           path: README.md
