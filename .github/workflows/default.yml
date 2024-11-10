@@ -9,6 +9,7 @@ env:
   REPOSITORY_NAME: 'workflows-manager'
   THRESHOLD: 0.9
 permissions: write-all
+
 jobs:
   standard-checks:
     name: Perform Standard Checks
@@ -18,7 +19,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: [ "3.9", "3.10", "3.11", "3.12", "3.13" ]
+        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -34,10 +35,7 @@ jobs:
         uses: dciborow/action-pylint@0.1.0
         with:
           github_token: ${{ secrets.github_token }}
-          # Change reviewdog reporter if you need [github-pr-check,github-check,github-pr-review].
           reporter: github-pr-review
-          # Change reporter level if you need.
-          # GitHub Status Check won't become failure with warning.
           level: warning
           glob_pattern: "src/**/*.py"
       - name: Unit Tests
@@ -50,38 +48,37 @@ jobs:
           coverageFile: coverage.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           thresholdAll: ${{ env.THRESHOLD }}
-      - name: Retrieve Total Coverage
-        id: coverage
-        if: '!cancelled()'
-        run: echo "TOTAL_COVERAGE=$(hatch run +py=${{ matrix.python-version }} test:coverage report | grep TOTAL | awk '{ print $4 }' | sed 's/%//g')" >> "$GITHUB_ENV"
-      - name: Retrieve Coverage Color
-        if: '!cancelled()'
-        uses: jannekem/run-python-script-action@v1
+      - name: Retrieve Coverage and Version
+        id: info
+        run: |
+          echo "TOTAL_COVERAGE=$(hatch run +py=${{ matrix.python-version }} test:coverage report | grep TOTAL | awk '{ print $4 }' | sed 's/%//g')" >> "$GITHUB_ENV"
+          echo "VERSION=$(hatch version)" >> "$GITHUB_ENV"
+        shell: bash
+
+  add-badges:
+    name: Add Badges
+    runs-on: ubuntu-latest
+    needs: standard-checks
+    if: github.ref == 'refs/heads/main'
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Determine Coverage Color
         id: coverage-color
-        with:
-          fail-on-error: false
-          script: |
-            if (int("${{ env.TOTAL_COVERAGE }}") / 100.0) < float("${{ env.THRESHOLD }}"):
-              print("red", end='')
-            else:
-              print("green", end='')
-      - name: Retrieve Release Version
-        id: version
-        if: '!cancelled()'
-        run: echo "VERSION=$(hatch version)" >> "$GITHUB_ENV"
+        run: |
+          if (( $(echo "${{ env.TOTAL_COVERAGE }} < ${{ env.THRESHOLD }} * 100" | bc -l) )); then
+            echo "color=red" >> "$GITHUB_ENV"
+          else
+            echo "color=green" >> "$GITHUB_ENV"
+          fi
       - name: Add Badges
-        if: '!cancelled()'
-        # You may pin to the exact commit or the version.
-        # uses: wow-actions/add-badges@43f2c1eaecfb2596b89a8136a3fbda4f18d1d188
         uses: wow-actions/add-badges@v1.1.0
         env:
           repo_url: ${{ github.event.repository.html_url }}
           repo_name: ${{ github.event.repository.name }}
           repo_owner: ${{ github.event.repository.owner.login }}
         with:
-          # Your GitHub token for authentication.
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # The badges to add with JSON format
           badges: |
             [
               {
@@ -110,11 +107,9 @@ jobs:
                 "link": "https://pypi.org/project/${{ env.REPOSITORY_NAME }}/"
               },
               {
-                "badge": "https://img.shields.io/badge/Coverage-${{ env.TOTAL_COVERAGE }}%25-${{ steps.coverage-color.outputs.stdout }}.svg?style=for-the-badge",
+                "badge": "https://img.shields.io/badge/Coverage-${{ env.TOTAL_COVERAGE }}%25-${{ env.color }}.svg?style=for-the-badge",
                 "alt": "Coverage ${{ env.TOTAL_COVERAGE }}%"
               }
             ]
-          # Path and file name to add badges
           path: README.md
-          # Should center align the badges
           center: false
