@@ -743,7 +743,7 @@ class WorkflowDispatcherBuilder:
             self.__set_default_configuration_file()
         else:
             if isinstance(configuration_file, str):
-                configuration_file = Path(configuration_file).absolute()
+                configuration_file = Path(configuration_file).absolute().resolve()
             self.__configuration_file = configuration_file
             if configuration_file.suffix == '.json':
                 self.__configuration_file_format = ConfigurationFormat.JSON
@@ -773,7 +773,7 @@ class WorkflowDispatcherBuilder:
         :rtype: WorkflowDispatcherBuilder
         """
         if isinstance(status_file, str):
-            status_file = Path(status_file).absolute()
+            status_file = Path(status_file).absolute().resolve()
         self.__status_file = status_file
         return self
 

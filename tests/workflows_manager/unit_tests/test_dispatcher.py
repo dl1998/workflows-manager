@@ -433,6 +433,16 @@ class TestWorkflowDispatcher:
             mock_runner.assert_not_called()
 
 
+def create_path_with_default_cwd(default_path: Path, original_new):
+    def mock_path(cls, *args, **kwargs):
+        if not args and not kwargs:
+            return default_path
+        else:
+            return original_new(cls, *args, **kwargs)
+
+    return mock_path
+
+
 def create_mock_path_joinpath(return_values: Dict):
     def mock_joinpath(path: str):
         return return_values.get(path, MagicMock())
@@ -485,7 +495,7 @@ class TestWorkflowDispatcherBuilder:
                 mock_path_absolute.assert_not_called()
                 mock_path_resolve.resolve.assert_not_called()
 
-    @pytest.mark.parametrize('configuration_file, json_path_exists, yaml_path_exists, format', [
+    @pytest.mark.parametrize("configuration_file, json_path_exists, yaml_path_exists, configuration_format", [
         (None, True, False, ConfigurationFormat.JSON),
         (None, False, True, ConfigurationFormat.YAML),
         ('file.json', False, False, ConfigurationFormat.JSON),
@@ -499,7 +509,7 @@ class TestWorkflowDispatcherBuilder:
         'yml configuration file provided',
     ])
     def test_configuration_file(self, configuration_file: Optional[str], json_path_exists: bool,
-                                yaml_path_exists: bool, format: ConfigurationFormat):
+                                yaml_path_exists: bool, configuration_format: ConfigurationFormat):
         workflow_dispatcher_builder = WorkflowDispatcherBuilder()
         json_path = MagicMock()
         json_path.exists.return_value = json_path_exists
@@ -510,10 +520,14 @@ class TestWorkflowDispatcherBuilder:
             'workflows.json': json_path,
         }
         test_cwd = '/tmp/module'
-        with patch.object(Path, 'joinpath',
-                          side_effect=create_mock_path_joinpath(return_values=mapping)) as mock_path_joinpath, patch(
-            'os.getcwd') as mock_cwd:
-            mock_cwd.return_value = test_cwd
+        current_path = Path(test_cwd)
+        path_new = Path.__new__
+        with (patch.object(Path, '__new__', new=create_path_with_default_cwd(current_path, path_new)),
+              patch.object(Path,'joinpath', side_effect=create_mock_path_joinpath(return_values=mapping)),
+              patch.object(Path, 'absolute', lambda original: original),
+              patch.object(Path, 'resolve', lambda original: original)):
+            if configuration_file:
+                configuration_file = f'{test_cwd}/{configuration_file}'
             returned_object = workflow_dispatcher_builder.configuration_file(configuration_file)
             assert returned_object == workflow_dispatcher_builder
             current_configuration_file = inspect.getattr_static(workflow_dispatcher_builder,
@@ -525,11 +539,9 @@ class TestWorkflowDispatcherBuilder:
                     assert current_configuration_file == json_path
                 elif yaml_path_exists:
                     assert current_configuration_file == yaml_path
-                mock_path_joinpath.assert_any_call('workflows.json')
-                mock_path_joinpath.assert_any_call('workflows.yaml')
             else:
-                assert current_configuration_file == Path(f'{test_cwd}/{configuration_file}')
-            assert current_configuration_format == format
+                assert current_configuration_file == Path(configuration_file)
+            assert current_configuration_format == configuration_format
 
     @pytest.mark.parametrize("json_path_exists, yaml_path_exists, expected_exception", [
         (True, True, InvalidConfiguration("Both workflows.yaml and workflows.json files found in the current path")),
@@ -566,7 +578,9 @@ class TestWorkflowDispatcherBuilder:
         workflow_dispatcher_builder = WorkflowDispatcherBuilder()
         status_file = 'test.json'
         test_cwd = '/tmp/module'
-        with patch('os.getcwd', return_value=test_cwd):
+        with patch.object(Path, 'absolute', lambda original: Path(test_cwd).joinpath(original)), patch.object(Path,
+                                                                                                              'resolve',
+                                                                                                              lambda original: original):
             returned_object = workflow_dispatcher_builder.status_file(status_file)
             expected_path = Path(f'{test_cwd}/{status_file}')
             assert returned_object == workflow_dispatcher_builder
@@ -586,6 +600,7 @@ class TestWorkflowDispatcherBuilder:
                    configuration_format: ConfigurationFormat):
         logger = logging.getLogger('noop_logger')
         test_cwd = '/private/tmp/module'
+        current_path = Path(test_cwd)
         imports = [
             Path(f'{test_cwd}/present'),
             Path(f'{test_cwd}/duplicated'),
@@ -608,14 +623,18 @@ class TestWorkflowDispatcherBuilder:
             Path(f'{test_cwd}/duplicated'),
         ]
         if not disable_import:
-            expected_imports.insert(1, Path(test_cwd))
-        with patch('os.getcwd', return_value=test_cwd):
+            expected_imports.insert(1, current_path)
+        path_new = Path.__new__
+        with patch.object(Path, '__new__', new=create_path_with_default_cwd(current_path, path_new)), patch.object(Path,
+                                                                                                                   'resolve',
+                                                                                                                   lambda original: original), patch.object(
+            Path, 'absolute', lambda original: original):
             workflow_dispatcher_builder.build()
             mock_dispatcher = mock_dispatcher()
-            assert logger == mock_dispatcher.logger
-            assert expected_imports == mock_dispatcher.imports
-            assert status_file == mock_dispatcher.status_file
-            assert workflow_name == mock_dispatcher.workflow_name
+            assert mock_dispatcher.logger == logger
+            assert mock_dispatcher.imports == expected_imports
+            assert mock_dispatcher.status_file == status_file
+            assert mock_dispatcher.workflow_name == workflow_name
             if configuration_format == ConfigurationFormat.JSON:
                 mock_configuration.from_json.assert_called_once_with(configuration_file)
             elif configuration_format == ConfigurationFormat.YAML:
