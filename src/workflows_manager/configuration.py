@@ -46,7 +46,7 @@ class Parameter:
         try:
             return cls(**data)
         except Exception as exception:
-            raise InvalidConfiguration(f"Invalid parameter configuration: {exception}")
+            raise InvalidConfiguration(f"Invalid parameter configuration: {exception}") from exception
 
     def validate_all(self):
         """
@@ -92,7 +92,7 @@ class Parameters:
         try:
             return cls([Parameter.from_dict(parameter) for parameter in data])
         except Exception as exception:
-            raise InvalidConfiguration(f"Invalid parameters configuration: {exception}")
+            raise InvalidConfiguration(f"Invalid parameters configuration: {exception}") from exception
 
     def validate_all(self):
         """
@@ -131,7 +131,7 @@ class Steps:
         try:
             return cls([Step.from_dict(step) for step in data])
         except Exception as exception:
-            raise InvalidConfiguration(f"Invalid steps configuration: {exception}")
+            raise InvalidConfiguration(f"Invalid steps configuration: {exception}") from exception
 
     def validate_all(self):
         """
@@ -236,7 +236,7 @@ class Step:
                 'parallels': Steps.from_dict(data.get('parallels', []))
             })
         except Exception as exception:
-            raise InvalidConfiguration(f"Invalid step configuration: {exception}")
+            raise InvalidConfiguration(f"Invalid step configuration: {exception}") from exception
 
     def validate_all(self):
         """
@@ -246,9 +246,9 @@ class Step:
             raise InvalidConfiguration("Step type must be either 'normal', 'parallel', or 'workflow'.")
         if self.type == StepType.PARALLEL and (self.parallels is None or len(self.parallels.elements) == 0):
             raise InvalidConfiguration("Parallel step must have 'parallels' attribute.")
-        elif self.type == StepType.WORKFLOW and self.workflow is None:
+        if self.type == StepType.WORKFLOW and self.workflow is None:
             raise InvalidConfiguration("Workflow step must have 'workflow' attribute.")
-        elif self.type == StepType.NORMAL and self.id is None:
+        if self.type == StepType.NORMAL and self.id is None:
             raise InvalidConfiguration("Normal step must have 'step' attribute.")
         self.parameters.validate_all()
 
@@ -286,7 +286,7 @@ class Workflow:
                 'parameters': Parameters.from_dict(data.get('parameters', []))
             })
         except Exception as exception:
-            raise InvalidConfiguration(f"Invalid workflow configuration: {exception}")
+            raise InvalidConfiguration(f"Invalid workflow configuration: {exception}") from exception
 
     def validate_all(self):
         """
@@ -333,7 +333,7 @@ class Workflows:
         try:
             return cls([Workflow.from_dict({'name': workflow, **data[workflow]}) for workflow in data])
         except Exception as exception:
-            raise InvalidConfiguration(f"Invalid workflows configuration: {exception}")
+            raise InvalidConfiguration(f"Invalid workflows configuration: {exception}") from exception
 
     def validate_all(self):
         """
@@ -374,7 +374,7 @@ class Configuration:
                 'parameters': Parameters.from_dict(data.get('parameters', []))
             })
         except Exception as exception:
-            raise InvalidConfiguration(f"Invalid configuration file: {exception}")
+            raise InvalidConfiguration(f"Invalid configuration file: {exception}") from exception
 
     @classmethod
     def __from_file(cls, file_path: Union[str, Path], parser: Callable[[Any], dict]) -> 'Configuration':

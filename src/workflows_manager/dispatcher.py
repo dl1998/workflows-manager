@@ -14,8 +14,8 @@ from logging import getLogger, Logger
 from threading import Thread
 from typing import Union, List, Dict, Any, Optional, Set
 
-import workflows_manager.configuration as configuration
-import workflows_manager.workflow as workflow
+from workflows_manager import configuration
+from workflows_manager import workflow
 from workflows_manager.configuration import Workflow, Parameters, StepType
 from workflows_manager.exceptions import MissingStep, MissingParameter, UnknownOption, InvalidConfiguration
 from workflows_manager.workflow import StepsInformation, StepStatus, StepInformation, StepPath, WorkflowContext
@@ -260,9 +260,9 @@ class Runner:
     """
     logger: Logger
     workflows_configuration: configuration.Configuration
-    workflow_context: WorkflowContext
     workflow_name: str
     status_file: Optional[Path]
+    __workflow_context: WorkflowContext
 
     def __init__(self, logger: Logger, workflows_configuration: configuration.Configuration, workflow_name: str):
         self.logger = logger
@@ -349,7 +349,7 @@ class Runner:
         instance_parameters = get_instance_parameters(step)
         selected_parameters = {}
         for parameter, value in parameters.items():
-            if parameter in instance_parameters.keys():
+            if parameter in instance_parameters:
                 selected_parameters[parameter] = value
                 instance_parameters.pop(parameter)
         parameters_to_remove = []
@@ -512,7 +512,7 @@ class Runner:
         A method to generate the status file.
         """
         with self.status_file.open('w', encoding='utf-8') as file:
-            json.dump(self.__workflow_context.steps_information.dict(), file, indent=4)
+            json.dump(self.__workflow_context.steps_information.to_dict(), file, indent=4)
 
     def run(self):
         """
@@ -721,7 +721,7 @@ class WorkflowDispatcherBuilder:
         json_file = current_path.joinpath('workflows.json')
         if yaml_file.exists() and json_file.exists():
             raise InvalidConfiguration("Both workflows.yaml and workflows.json files found in the current path")
-        elif yaml_file.exists():
+        if yaml_file.exists():
             self.__configuration_file = yaml_file
             self.__configuration_file_format = ConfigurationFormat.YAML
         elif json_file.exists():
