@@ -1,8 +1,7 @@
 name: Release New Version
 on:
-  push:
-    tags:
-      - 'v*'
+  release:
+    types: [published]
 env:
   REPOSITORY_NAME: workflows-manager
 jobs:
