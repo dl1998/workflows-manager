@@ -89,7 +89,10 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: combined-coverage
-          path: combined-coverage.xml
+          include-hidden-files: true
+          path: |
+            combined-coverage.xml
+            .coverage
 
   check-pr-coverage:
     name: Check Pull Request Coverage
