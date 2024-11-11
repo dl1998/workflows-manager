@@ -137,6 +137,24 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
+      - name: Download Combined Coverage
+        uses: actions/download-artifact@v3
+        with:
+          name: combined-coverage
+          path: .
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+      - name: Install Hatch and Dependencies
+        run: |
+          python3 -m pip install hatch
+      - name: Retrieve Version
+        run: echo "VERSION=$(hatch version)" >> "$GITHUB_ENV"
+      - name: Retrieve Total Coverage
+        id: coverage
+        if: '!cancelled()'
+        run: echo "TOTAL_COVERAGE=$(coverage report | grep TOTAL | awk '{ print $4 }' | sed 's/%//g')" >> "$GITHUB_ENV"
       - name: Determine Coverage Color
         id: coverage-color
         run: |
