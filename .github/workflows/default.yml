@@ -149,6 +149,7 @@ jobs:
       - name: Install Hatch and Dependencies
         run: |
           python3 -m pip install hatch
+          python3 -m pip install coverage
       - name: Retrieve Version
         run: echo "VERSION=$(hatch version)" >> "$GITHUB_ENV"
       - name: Retrieve Total Coverage
