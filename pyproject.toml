@@ -48,10 +48,9 @@ test = [
 ]
 
 [project.urls]
-Documentation = "https://readthedocs.org"
+Documentation = "https://dl1998.github.io/worfklows-manager"
 Repository = "https://github.com/dl1998/workflows-manager.git"
 Issues = "https://github.com/dl1998/workflows-manager/issues"
-Changelog = "https://github.com/dl1998/workflows-manager/blob/main/CHANGELOG.md"
 
 [project.scripts]
 workflows-manager = "workflows_manager.main:main_cli"
