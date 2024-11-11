@@ -106,7 +106,7 @@ nav:
       - Configure Workflow: setup/configure_workflow.md
       - CLI: setup/cli.md
   - Tutorials:
-    - tutorials.md
+    - tutorials/json_cleaning_workflow.md
   - Developers:
     - Architecture: developers/architecture.md
     - Modules:
