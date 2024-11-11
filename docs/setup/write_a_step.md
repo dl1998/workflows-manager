@@ -2,17 +2,23 @@ One of the main features of the workflows-manager is the ability to create new w
 To create a new step you need to create a new Python file in your project. The file should contain a class that inherits
 from the [`Step`][workflows_manager.workflow.Step] class.
 
-The [`Step`][workflows_manager.workflow.Step] class is a base class for all steps. It provides a simple interface to define the step behavior. The class
-contains two methods: [`perform`][workflows_manager.workflow.Step.perform] and
+The [`Step`][workflows_manager.workflow.Step] class is a base class for all steps. It provides a simple interface to
+define the step behavior. The class contains two methods: [`perform`][workflows_manager.workflow.Step.perform] and
 [`configure_logger`][workflows_manager.workflow.Step.configure_logger]. The
 [`perform`][workflows_manager.workflow.Step.perform] method is the main method that should contain the step logic, it
 must be implemented in the child class. The [`configure_logger`][workflows_manager.workflow.Step.configure_logger]
 method is used to configure the logger for the step.
 
+You will need the following imports to create a new step:
+
+```py
+from workflows_manager.workflow import steps, Step
+```
+
 Here is an example of a simple step that prints a message to the console:
 
 ```py linenums="1"
-Steps.register(name="console-output") # (1)
+steps.register(name="console-output") # (1)
 class ConsoleOutput(Step): # (2)
     def perform(self, message: str): # (3)
         print(message) # (4)
@@ -33,7 +39,7 @@ method to configure the logger for the step.
 Here is an example of a step that configures the logger to print the message to the console:
 
 ```py linenums="1"
-Steps.register(name="log-message")
+steps.register(name="log-message")
 class LogMessage(Step):
     def configure_logger(self):
         self.logger = logging.getLogger("log-message") # (1)

@@ -11,3 +11,28 @@ steps or workflows.
 ## Official Documentation
 
 The official documentation is available on [GitHub Pages](https://dl1998.github.io/worfklows-manager/).
+
+## Installation
+
+You can install workflows manager using pip. It is recommended to use pip together with virtual environment (venv).
+
+```shell
+python3 -m pip install workflows-manager
+```
+
+## Usage
+
+To run the workflows manager, you can use the following command:
+
+```shell
+workflows-manager -c <path_to_workflows_configuration> run <workflow_name>
+```
+
+More options are available, you can check them using the following command:
+
+```shell
+workflows-manager --help
+```
+
+Or, you can check [the official documentation](https://dl1998.github.io/worfklows-manager/latest/setup/cli/) for more
+information.

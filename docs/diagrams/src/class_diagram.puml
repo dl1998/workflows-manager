@@ -160,14 +160,14 @@ package "workflows_manager" {
             + next_step: Optional[StepInformation]
             + parent: Optional[StepInformation]
             + children: Optional[List[StepInformation]]
-            + dict(): List[Dict]
+            + to_dict(): List[Dict]
         }
 
         class StepsInformation {
             + steps: Dict[StepPath, StepInformation]
             + get_step_information(step_path: StepPath): StepInformation
             + first_step(): Optional[StepInformation]
-            + dict(): Dict
+            + to_dict(): Dict
         }
 
         class WorkflowContext {
