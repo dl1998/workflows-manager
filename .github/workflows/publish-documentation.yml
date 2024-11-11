@@ -3,7 +3,7 @@ on:
   release:
     types: [published]
 permissions:
-    contents: write
+  contents: write
 jobs:
   docs:
     name: Generate Documentation
@@ -17,10 +17,12 @@ jobs:
           python-version: "3.13"
       - name: Install Hatch
         run: python3 -m pip install hatch
-      - name: Setup environment
-        run: hatch env +py=3.13 create docs
       - name: Retrieve version
         run: echo "WORKFLOWS_VERSION=$(hatch version)" >> "$GITHUB_ENV"
+      - name: Set User
+        run: |
+            git config --local user.name "GitHub Actions"
+            git config --local user.email "action@github.com"
       - name: Publish documentation
         run: hatch env run -e docs -- mike deploy --update-aliases ${{ env.WORKFLOWS_VERSION }} latest
       - name: Update default version
