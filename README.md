@@ -2,6 +2,12 @@
 
 <!-- [START BADGES] -->
 <!-- Please keep comment here to allow auto update -->
+[![MIT License](https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge)](https://github.com/dl1998/workflows-manager/blob/main/LICENSE)
+[![Language](https://img.shields.io/badge/Language-Python-blue?style=for-the-badge&logo=python)](https://www.python.org/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=for-the-badge)](https://github.com/dl1998/workflows-manager/pulls)
+[![TestPyPi ](https://img.shields.io/badge/TestPyPi--brightgreen.svg?style=for-the-badge)](https://test.pypi.org/project/workflows-manager/)
+[![PyPi ](https://img.shields.io/badge/PyPi--brightgreen.svg?style=for-the-badge)](https://pypi.org/project/workflows-manager/)
+[![Coverage %](https://img.shields.io/badge/Coverage-%25-green.svg?style=for-the-badge)](https://codecov.io/gh/dl1998/workflows-manager)
 <!-- [END BADGES] -->
 
 Workflows manager is a tool that allows you to manage your workflows in a more efficient way. It provides a simple and
