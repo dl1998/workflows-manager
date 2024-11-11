@@ -16,7 +16,7 @@ steps or workflows.
 
 ## Official Documentation
 
-The official documentation is available on [GitHub Pages](https://dl1998.github.io/worfklows-manager/).
+The official documentation is available on [GitHub Pages](https://dl1998.github.io/workflows-manager/).
 
 ## Installation
 
@@ -40,5 +40,5 @@ More options are available, you can check them using the following command:
 workflows-manager --help
 ```
 
-Or, you can check [the official documentation](https://dl1998.github.io/worfklows-manager/latest/setup/cli/) for more
+Or, you can check [the official documentation](https://dl1998.github.io/workflows-manager/latest/setup/cli/) for more
 information.

@@ -48,7 +48,7 @@ test = [
 ]
 
 [project.urls]
-Documentation = "https://dl1998.github.io/worfklows-manager"
+Documentation = "https://dl1998.github.io/workflows-manager"
 Repository = "https://github.com/dl1998/workflows-manager.git"
 Issues = "https://github.com/dl1998/workflows-manager/issues"
 
