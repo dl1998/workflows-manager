@@ -1,0 +1,19 @@
+{% extends "base.html" %}
+
+{% block outdated %}
+  <style>
+    #new-version-link {
+      color: black;
+    }
+    #new-version-link:visited {
+      color: black;
+    }
+    #new-version-link:hover {
+      color: #FF0266;
+    }
+  </style>
+  You're not viewing the latest version.
+  <a href="{{ '../' ~ base_url }}/latest" id="new-version-link">
+    <strong>Click here to go to latest.</strong>
+  </a>
+{% endblock %}

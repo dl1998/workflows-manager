@@ -1,0 +1,66 @@
+name: Release New Version
+on:
+  push:
+    tags:
+      - 'v*'
+env:
+  REPOSITORY_NAME: workflows-manager
+jobs:
+  create-release:
+    name: Create a new release
+    permissions: write-all
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.9"
+      - name: Install Hatch
+        run: python3 -m pip install hatch
+      - name: Setup environment
+        run: hatch build
+      - name: Publish Artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: linux-dist
+          path: dist/
+  publish-library-dev:
+    name: Publish new release on dev
+    needs: ['create-release']
+    permissions: write-all
+    runs-on: ubuntu-latest
+    environment:
+      name: dev
+      url: "https://test.pypi.org/project/${{ env.REPOSITORY_NAME }}/"
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: linux-dist
+          path: dist/
+      - name: Publish package distributions to TestPyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: "https://test.pypi.org/legacy/"
+  publish-library-prod:
+    name: Publish new release on prod
+    needs: ['create-release', 'publish-library-dev']
+    permissions: write-all
+    runs-on: ubuntu-latest
+    environment:
+      name: prod
+      url: "https://pypi.org/project/${{ env.REPOSITORY_NAME }}/"
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Download Artifacts
+        uses: actions/download-artifact@v3
+        with:
+          name: linux-dist
+          path: dist/
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1

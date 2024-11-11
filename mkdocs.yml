@@ -1,0 +1,118 @@
+site_name: Workflows Manager Documentation
+
+repo_url: https://github.com/dl1998/workflows-manager
+repo_name: dl1998/workflows-manager
+edit_uri: edit/main/docs/
+
+markdown_extensions:
+  - toc:
+      permalink: true
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+
+theme:
+  name: "material"
+  custom_dir: overrides
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: black
+      accent: indigo
+      toggle:
+        icon: material/brightness-7
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: white
+      accent: indigo
+      toggle:
+        icon: material/brightness-4
+        name: Switch to light mode
+  features:
+    - header.autolink
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - toc.integrate
+    - toc.follow
+    - content.tabs.link
+    - content.action.edit
+    - content.action.view
+    - content.code.copy
+    - content.code.annotate
+  icon:
+    repo: fontawesome/brands/github
+    edit: material/pencil
+    view: material/eye
+
+plugins:
+  - search
+  - mkdocstrings:
+      handlers:
+        python:
+          options:
+            docstring_style: "sphinx"
+            show_root_toc_entry: false
+            show_source: false
+            filters:
+              - "!^_"
+              - "!^__"
+  - mike:
+      alias_type: symlink
+      redirect_template: null
+      deploy_prefix: ''
+      canonical_version: null
+      version_selector: true
+      css_dir: css
+      javascript_dir: js
+  - glightbox
+  - markdownextradata:
+      data: ../versions.json
+  - autorefs:
+      resolve_closest: true
+  - build_plantuml:
+      render: 'server'
+      bin_path: '/usr/local/bin/plantuml'
+      server: 'http://www.plantuml.com/plantuml'
+      disable_ssl_certificate_validation: true
+      output_format: 'svg'
+      allow_multiple_roots: false
+      diagram_root: 'docs/diagrams'
+      output_folder: 'out'
+      input_folder: 'src'
+      input_extensions: ''
+      theme_enabled: true
+      theme_folder: "include/themes"
+      theme_dark: "dark.puml"
+
+extra:
+  version:
+    provider: mike
+  workflows_version: !ENV WORKFLOWS_VERSION
+
+
+nav:
+  - "Getting Started":
+    - Installation: index.md
+    - Setup:
+      - Write a Step: setup/write_a_step.md
+      - Configure Workflow: setup/configure_workflow.md
+      - CLI: setup/cli.md
+  - Tutorials:
+    - tutorials/json_cleaning_workflow.md
+  - Developers:
+    - Architecture: developers/architecture.md
+    - Modules:
+      - "Module: configuration": developers/modules/configuration.md
+      - "Module: dispatcher": developers/modules/dispatcher.md
+      - "Module: exceptions": developers/modules/exceptions.md
+      - "Module: logger": developers/modules/logger.md
+      - "Module: workflow": developers/modules/workflow.md
+      - "Module: main": developers/modules/main.md
