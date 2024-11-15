@@ -24,6 +24,10 @@ jobs:
             git config --local user.name "GitHub Actions"
             git config --local user.email "action@github.com"
       - name: Publish documentation
-        run: hatch env run -e docs -- mike deploy --update-aliases --push ${{ env.WORKFLOWS_VERSION }} latest
+        run: |
+          git fetch origin gh-pages
+          git checkout gh-pages
+          git pull origin gh-pages
+          hatch env run -e docs -- mike deploy --update-aliases --push ${{ env.WORKFLOWS_VERSION }} latest
       - name: Update default version
         run: hatch env run -e docs -- mike set-default --push ${{ env.WORKFLOWS_VERSION }}
