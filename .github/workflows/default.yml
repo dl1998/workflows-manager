@@ -180,7 +180,7 @@ jobs:
               {
                 "badge": "https://img.shields.io/badge/License-MIT-yellow.svg?style=for-the-badge",
                 "alt": "MIT License",
-                "link": "${{ env.repo_url }}/blob/main/LICENSE"
+                "link": "${{ env.repo_url }}/blob/main/LICENSE.md"
               },
               {
                 "badge": "https://img.shields.io/badge/Language-Python-blue?style=for-the-badge&logo=python",
