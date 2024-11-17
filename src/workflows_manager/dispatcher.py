@@ -8,11 +8,12 @@ import io
 import json
 import os
 import sys
+from dataclasses import dataclass, field
 from pathlib import Path
 from enum import Enum
 from logging import getLogger, Logger
 from threading import Thread
-from typing import Union, List, Dict, Any, Optional, Set
+from typing import Union, List, Dict, Any, Optional, Set, Type
 
 from workflows_manager import configuration
 from workflows_manager import workflow
@@ -23,19 +24,65 @@ from workflows_manager.workflow import StepsInformation, StepStatus, StepInforma
 MODULE_IMPORTS_ENVIRONMENT_VARIABLE = 'WORKFLOWS_MANAGER_IMPORTS'
 
 
-def get_instance_parameters(instance: workflow.Step) -> Dict[str, Any]:
+@dataclass
+class InstanceParameter:
     """
-    A method to get the parameters of a step instance with its default values.
+    A class to represent the parameter of the step instance with its default value and type.
+
+    :ivar name: The name of the parameter.
+    :vartype name: str
+    :ivar value: The default value of the parameter.
+    :vartype value: Any
+    :ivar type: The type of the parameter.
+    :vartype type: Type
+    """
+    name: str
+    value: Any
+    type: Type
+
+
+@dataclass
+class InstanceParameters:
+    """
+    A class to represent the parameters of the step instance with their default values and types.
+
+    :ivar parameters: The parameters of the step instance.
+    :vartype parameters: List[InstanceParameter]
+    """
+    parameters: List[InstanceParameter] = field(default_factory=list)
+
+    def __iter__(self):
+        return iter(self.parameters)
+
+    def __getitem__(self, item: Union[int, str]):
+        if isinstance(item, int):
+            return self.parameters[item]
+        for parameter in self.parameters:
+            if parameter.name == item:
+                return parameter
+        return None
+
+    def __delitem__(self, key):
+        for index, parameter in enumerate(self.parameters):
+            if parameter.name == key:
+                del self.parameters[index]
+                return
+
+
+def get_instance_parameters(instance: workflow.Step) -> InstanceParameters:
+    """
+    A method to get the parameters of a step instance with its default value and type.
 
     :param instance: The step instance.
     :type instance: workflow.Step
-    :return: The parameters of the step instance with default value.
-    :rtype: Dict[str, Any]
+    :return: The parameters of the step instance with default value and type.
+    :rtype: InstanceParameters
     """
     parameters = inspect.signature(instance.perform).parameters
-    instance_parameters = {}
+    instance_parameters = InstanceParameters()
     for name, parameter in parameters.items():
-        instance_parameters[name] = parameter.default
+        instance_parameter = InstanceParameter(name, parameter.default, parameter.annotation)
+        instance_parameters.parameters.append(instance_parameter)
     return instance_parameters
 
 
@@ -101,11 +148,14 @@ class Validator:
     logger: Logger
     workflows_configuration: configuration.Configuration
     workflow_name: str
+    parameters: Dict[str, Any]
 
-    def __init__(self, logger: Logger, workflows_configuration: configuration.Configuration, workflow_name: str):
+    def __init__(self, logger: Logger, workflows_configuration: configuration.Configuration, workflow_name: str,
+                 parameters: Dict[str, Any]):
         self.logger = logger
         self.workflows_configuration = workflows_configuration
         self.workflow_name = workflow_name
+        self.parameters = parameters
 
     def __validate_workflow_step_parameters(self, step_configuration: configuration.Step, parameters: Set[str]):
         """
@@ -135,8 +185,7 @@ class Validator:
             self.logger.info(f"Validating parameters for the parallel step: {parallel_step.name}")
             self.__validate_step_parameters(parallel_step, parameters)
 
-    @staticmethod
-    def __validate_normal_step_parameters(step_configuration: configuration.Step, parameters: Set[str]):
+    def __validate_normal_step_parameters(self, step_configuration: configuration.Step, parameters: Set[str]):
         """
         A method to validate the parameters of a normal step.
 
@@ -147,20 +196,24 @@ class Validator:
         """
         step_instance = workflow.steps.steps_register[step_configuration.id]
         instance_parameters = get_instance_parameters(step_instance)
-        for parameter in parameters:
-            try:
-                instance_parameters.pop(parameter)
-            except KeyError:
-                continue
-        parameters_to_remove = []
-        for parameter, value in instance_parameters.items():
-            if value != inspect.Parameter.empty:
-                parameters_to_remove.append(parameter)
-        for parameter in parameters_to_remove:
-            instance_parameters.pop(parameter)
-        if instance_parameters:
-            step_name = step_configuration.name
-            missing_parameters = list(instance_parameters.keys())
+        initialized_parameters = {}
+        for name in self.parameters:
+            instance_parameter = instance_parameters[name]
+            if instance_parameter:
+                initialized_parameters[name] = True
+        for name in parameters:
+            instance_parameter = instance_parameters[name]
+            if instance_parameter:
+                initialized_parameters[name] = True
+        for parameter in instance_parameters:
+            if parameter.value != inspect.Parameter.empty:
+                initialized_parameters[parameter.name] = True
+        step_name = step_configuration.name
+        missing_parameters = []
+        for parameter in instance_parameters:
+            if not initialized_parameters.get(parameter.name, False):
+                missing_parameters.append(parameter.name)
+        if missing_parameters:
             raise MissingParameter(f"Step '{step_name}' is missing the following parameters: {missing_parameters}")
 
     def __validate_step_parameters(self, step_configuration: configuration.Step, parameters: Set[str]):
@@ -262,13 +315,16 @@ class Runner:
     workflows_configuration: configuration.Configuration
     workflow_name: str
     status_file: Optional[Path]
+    parameters: Dict[str, Any]
     __workflow_context: WorkflowContext
 
-    def __init__(self, logger: Logger, workflows_configuration: configuration.Configuration, workflow_name: str):
+    def __init__(self, logger: Logger, workflows_configuration: configuration.Configuration, workflow_name: str,
+                 parameters: Dict[str, Any]):
         self.logger = logger
         self.workflows_configuration = workflows_configuration
         self.workflow_name = workflow_name
         self.status_file = None
+        self.parameters = parameters
 
     def __initialize_step_information(self, statuses: StepsInformation, step: configuration.Step,
                                       previous_step: Optional[StepInformation] = None,
@@ -334,8 +390,7 @@ class Runner:
         self.__workflow_context = WorkflowContext(steps_information=statuses)
         self.logger.info("Workflow context initialized")
 
-    @staticmethod
-    def __get_step_parameters(step: workflow.Step, parameters: Dict[str, Any]) -> Dict[str, Any]:
+    def __get_step_parameters(self, step: workflow.Step, parameters: Dict[str, Any]) -> Dict[str, Any]:
         """
         A method to get the parameters required by the step instance.
 
@@ -348,20 +403,24 @@ class Runner:
         """
         instance_parameters = get_instance_parameters(step)
         selected_parameters = {}
-        for parameter, value in parameters.items():
-            if parameter in instance_parameters:
-                selected_parameters[parameter] = value
-                instance_parameters.pop(parameter)
-        parameters_to_remove = []
-        for parameter, value in instance_parameters.items():
-            if value != inspect.Parameter.empty:
-                selected_parameters[parameter] = value
-                parameters_to_remove.append(parameter)
-        for parameter in parameters_to_remove:
-            instance_parameters.pop(parameter)
-        if instance_parameters:
+        missing_parameters = []
+        for instance_parameter in instance_parameters:
+            has_type = instance_parameter.type != inspect.Parameter.empty
+            if instance_parameter.name in self.parameters.keys() and (not has_type or isinstance(
+                    self.parameters[instance_parameter.name], instance_parameter.type)):
+                selected_parameters[instance_parameter.name] = self.parameters[instance_parameter.name]
+                continue
+            if instance_parameter.name in parameters.keys() and (not has_type or isinstance(
+                    parameters[instance_parameter.name], instance_parameter.type)):
+                selected_parameters[instance_parameter.name] = parameters[instance_parameter.name]
+                continue
+            if instance_parameter.value != inspect.Parameter.empty:
+                selected_parameters[instance_parameter.name] = instance_parameter.value
+                continue
+            missing_parameters.append(instance_parameter.name)
+        if missing_parameters:
             raise MissingParameter(
-                f"Missing the following required parameters: {list(instance_parameters.keys())}")
+                f"Missing the following required parameters: {missing_parameters}")
         return selected_parameters
 
     def __evaluate_parameters(self, parameters: Parameters,
@@ -554,6 +613,7 @@ class WorkflowDispatcher:
     configuration: configuration.Configuration
     workflow_name: str
     status_file: Optional[Path]
+    parameters: Dict[str, Any]
 
     @staticmethod
     def __collect_modules_from_path(path: Path) -> List[str]:
@@ -615,7 +675,8 @@ class WorkflowDispatcher:
         """
         A method to validate the configuration provided to the dispatcher.
         """
-        validator = Validator(self.logger.getChild('validator'), self.configuration, self.workflow_name)
+        validator = Validator(self.logger.getChild('validator'), self.configuration, self.workflow_name,
+                              self.parameters)
         return validator.validate()
 
     def run(self):
@@ -627,7 +688,7 @@ class WorkflowDispatcher:
             self.logger.error('Dispatcher cannot be started due to validation errors')
             return
         runner = Runner(self.logger.getChild(workflow.Step.DEFAULT_LOGGER_PREFIX), self.configuration,
-                        self.workflow_name)
+                        self.workflow_name, self.parameters)
         if self.status_file:
             runner.status_file = self.status_file
         runner.run()
@@ -667,6 +728,7 @@ class WorkflowDispatcherBuilder:
     __configuration_file_format: ConfigurationFormat
     __workflow_name: str
     __status_file: Optional[Path]
+    __parameters: Dict[str, Any]
 
     def __init__(self):
         self.__logger = getLogger(__name__)
@@ -777,6 +839,18 @@ class WorkflowDispatcherBuilder:
         self.__status_file = status_file
         return self
 
+    def parameters(self, parameters: Dict[str, Any]) -> 'WorkflowDispatcherBuilder':
+        """
+        A method to set the parameters.
+
+        :param parameters: The parameters to set.
+        :type parameters: Dict[str, Any]
+        :return: WorkflowDispatcherBuilder instance.
+        :rtype: WorkflowDispatcherBuilder
+        """
+        self.__parameters = parameters
+        return self
+
     def __get_combined_imports(self) -> List[Path]:
         """
         A method to get the combined imports (current path, imports from the environment, and provided imports).
@@ -815,4 +889,5 @@ class WorkflowDispatcherBuilder:
         dispatcher.configuration.validate_all()
         dispatcher.status_file = self.__status_file
         dispatcher.workflow_name = self.__workflow_name
+        dispatcher.parameters = self.__parameters
         return dispatcher
