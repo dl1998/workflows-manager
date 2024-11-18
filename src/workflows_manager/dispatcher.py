@@ -144,6 +144,8 @@ class Validator:
     :vartype workflows_configuration: configuration.Configuration
     :ivar workflow_name: The name of the workflow to run.
     :vartype workflow_name: str
+    :ivar parameters: The parameters provided to the workflow from command line arguments.
+    :vartype parameters: Dict[str, Any]
     """
     logger: Logger
     workflows_configuration: configuration.Configuration
@@ -304,12 +306,14 @@ class Runner:
     :vartype logger: Logger
     :ivar workflows_configuration: The configuration of the workflows.
     :vartype workflows_configuration: configuration.Configuration
-    :ivar workflow_context: The context of the workflow.
-    :vartype workflow_context: WorkflowContext
     :ivar workflow_name: The name of the workflow to run.
     :vartype workflow_name: str
     :ivar status_file: The path to the file where the statuses of the particular steps will be stored.
     :vartype statuses_file: Optional[Path]
+    :ivar parameters: The parameters provided to the workflow from command line arguments.
+    :vartype parameters: Dict[str, Any]
+    :ivar __workflow_context: The context of the workflow.
+    :vartype __workflow_context: WorkflowContext
     """
     logger: Logger
     workflows_configuration: configuration.Configuration
