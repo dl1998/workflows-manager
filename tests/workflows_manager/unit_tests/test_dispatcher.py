@@ -10,8 +10,8 @@ import pytest
 
 from workflows_manager import configuration, workflow, dispatcher
 from workflows_manager.configuration import Parameters
-from workflows_manager.dispatcher import get_instance_parameters, DispatcherAction, WorkflowDispatcher, \
-    WorkflowDispatcherBuilder, ConfigurationFormat, InstanceParameters, InstanceParameter
+from workflows_manager.dispatcher import DispatcherAction, WorkflowDispatcher, WorkflowDispatcherBuilder, \
+    ConfigurationFormat, InstanceParameters, InstanceParameter
 from workflows_manager.exceptions import UnknownOption, InvalidConfiguration
 from workflows_manager.workflow import steps
 
@@ -40,19 +40,6 @@ class NewStep(workflow.Step):
         return integer
 
 
-class Test:
-    def test_get_instance_parameters(self):
-        step = steps.steps_register['new-step']
-        parameters = get_instance_parameters(step)
-        expected_parameters = InstanceParameters()
-        expected_parameters.parameters.append(InstanceParameter('string', inspect.Parameter.empty, str))
-        expected_parameters.parameters.append(InstanceParameter('boolean', inspect.Parameter.empty, bool))
-        expected_parameters.parameters.append(InstanceParameter('integer', inspect.Parameter.empty, int))
-        expected_parameters.parameters.append(InstanceParameter('key', inspect.Parameter.empty, str))
-        expected_parameters.parameters.append(InstanceParameter('optional', None, inspect.Parameter.empty))
-        assert parameters == expected_parameters
-
-
 class TestInstanceParameter:
     def test(self):
         parameter = dispatcher.InstanceParameter(name='name', value='value', type=str)
@@ -69,6 +56,17 @@ class TestInstanceParameters:
         ])
         assert len(parameters.parameters) == 1
         assert parameters.parameters[0] == parameter
+
+    def test_from_step(self):
+        step = steps.steps_register['new-step']
+        parameters = InstanceParameters.from_step(step)
+        expected_parameters = InstanceParameters()
+        expected_parameters.parameters.append(InstanceParameter('string', inspect.Parameter.empty, str))
+        expected_parameters.parameters.append(InstanceParameter('boolean', inspect.Parameter.empty, bool))
+        expected_parameters.parameters.append(InstanceParameter('integer', inspect.Parameter.empty, int))
+        expected_parameters.parameters.append(InstanceParameter('key', inspect.Parameter.empty, str))
+        expected_parameters.parameters.append(InstanceParameter('optional', None, inspect.Parameter.empty))
+        assert parameters == expected_parameters
 
     def test_iter(self):
         parameter = InstanceParameter(name='name', value='value', type=str)
@@ -574,7 +572,7 @@ class TestWorkflowDispatcherBuilder:
         current_path = Path(test_cwd)
         path_new = Path.__new__
         with (patch.object(Path, '__new__', new=create_path_with_default_cwd(current_path, path_new)),
-              patch.object(Path,'joinpath', side_effect=create_mock_path_joinpath(return_values=mapping)),
+              patch.object(Path, 'joinpath', side_effect=create_mock_path_joinpath(return_values=mapping)),
               patch.object(Path, 'absolute', lambda original: original),
               patch.object(Path, 'resolve', lambda original: original)):
             if configuration_file:

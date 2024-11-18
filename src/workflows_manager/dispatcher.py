@@ -51,6 +51,23 @@ class InstanceParameters:
     """
     parameters: List[InstanceParameter] = field(default_factory=list)
 
+    @classmethod
+    def from_step(cls, step: workflow.Step) -> 'InstanceParameters':
+        """
+        A method to create an instance of the class from the step instance.
+
+        :param step: The step instance.
+        :type step: workflow.Step
+        :return: The instance of the class created from the step instance.
+        :rtype: InstanceParameters
+        """
+        parameters = inspect.signature(step.perform).parameters
+        instance_parameters = cls()
+        for name, parameter in parameters.items():
+            instance_parameter = InstanceParameter(name, parameter.default, parameter.annotation)
+            instance_parameters.parameters.append(instance_parameter)
+        return instance_parameters
+
     def __iter__(self):
         return iter(self.parameters)
 
@@ -67,23 +84,6 @@ class InstanceParameters:
             if parameter.name == key:
                 del self.parameters[index]
                 return
-
-
-def get_instance_parameters(instance: workflow.Step) -> InstanceParameters:
-    """
-    A method to get the parameters of a step instance with its default value and type.
-
-    :param instance: The step instance.
-    :type instance: workflow.Step
-    :return: The parameters of the step instance with default value and type.
-    :rtype: InstanceParameters
-    """
-    parameters = inspect.signature(instance.perform).parameters
-    instance_parameters = InstanceParameters()
-    for name, parameter in parameters.items():
-        instance_parameter = InstanceParameter(name, parameter.default, parameter.annotation)
-        instance_parameters.parameters.append(instance_parameter)
-    return instance_parameters
 
 
 class ExceptionThread(Thread):
@@ -197,7 +197,7 @@ class Validator:
         :type parameters: Set[str]
         """
         step_instance = workflow.steps.steps_register[step_configuration.id]
-        instance_parameters = get_instance_parameters(step_instance)
+        instance_parameters = InstanceParameters.from_step(step_instance)
         initialized_parameters = {}
         for name in self.parameters:
             instance_parameter = instance_parameters[name]
@@ -405,7 +405,7 @@ class Runner:
         :return: The parameters required by the step instance.
         :rtype: Dict[str, Any]
         """
-        instance_parameters = get_instance_parameters(step)
+        instance_parameters = InstanceParameters.from_step(step)
         selected_parameters = {}
         missing_parameters = []
         for instance_parameter in instance_parameters:
