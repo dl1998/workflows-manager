@@ -14,6 +14,12 @@ class MissingParameter(InvalidConfiguration):
     """
 
 
+class InvalidParameter(InvalidConfiguration):
+    """
+    Exception raised when parameter is invalid.
+    """
+
+
 class MissingStep(Exception):
     """
     Exception raised when step from configuration is not registered.

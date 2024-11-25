@@ -187,13 +187,32 @@ Example `input.json` content:
 1. **Open a terminal** and navigate to the directory where you saved `steps.py`, and `workflows.yaml` or `workflows.json`.
 
 2. **Run the Workflow with `workflows-manager`**, specifying the imports and configuration file paths:
-
-    ```shell
-    workflows-manager -i <project_path>/steps.py -c <project_path>/workflows.yaml run clean-json
-    ```
+    
+    === "YAML"
+        ```shell
+        workflows-manager run -i <project_path>/steps.py -c <project_path>/workflows.yaml clean-json
+        ```
+   
+    === "JSON"
+        ```shell
+        workflows-manager run -i <project_path>/steps.py -c <project_path>/workflows.json clean-json
+        ```
 
     - If you'd like more detailed logging output, add `--log-level debug`.
     - If you want to save logs to a file, use `--log-file /path/to/logfile.log`.
+
+    !!! example "Override parameters from the command line"
+        You can override the parameters defined in the configuration file by adding them to the command line. For example:
+
+        === "YAML"
+            ```shell
+            workflows-manager run -i <project_path>/steps.py -c <project_path>/workflows.yaml -sp "input_json:<new_path>/input.json" clean-json
+            ```
+        
+        === "JSON"
+            ```shell
+            workflows-manager run -i <project_path>/steps.py -c <project_path>/workflows.json -sp "input_json:<new_path>/input.json" clean-json
+            ```
 
 3. **Verify Output**:
     - After the workflow completes, check `<project_path>/data/output.json`.
@@ -206,7 +225,7 @@ Example `input.json` content:
 You’ve now created a simple JSON cleaning workflow using `workflows-manager`! Here’s a recap of the steps:
 
 1. Define Python steps for loading, cleaning, and saving JSON.
-2. Configure the workflow in a `workflows.yaml` or `workflows.json` file.
+2. Configure the workflow in either `workflows.yaml` or `workflows.json` file.
 3. Prepare an input JSON file with `null` fields.
 4. Run the workflow from the command line to generate the cleaned JSON file.
 

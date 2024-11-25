@@ -10,13 +10,16 @@ import pytest
 
 from workflows_manager import configuration, workflow, dispatcher
 from workflows_manager.configuration import Parameters
-from workflows_manager.dispatcher import get_instance_parameters, DispatcherAction, WorkflowDispatcher, \
-    WorkflowDispatcherBuilder, ConfigurationFormat
+from workflows_manager.dispatcher import DispatcherAction, WorkflowDispatcher, WorkflowDispatcherBuilder, \
+    ConfigurationFormat, InstanceParameters, InstanceParameter
 from workflows_manager.exceptions import UnknownOption, InvalidConfiguration
 from workflows_manager.workflow import steps
 
 TEST_LOGGER_NAME = 'noop_logger'
 WORKFLOW_NAME = 'workflow'
+PARAMETERS = {
+    'key': 'value'
+}
 
 
 def setup_module(_):
@@ -26,7 +29,7 @@ def setup_module(_):
 
 @steps.register(name='new-step')
 class NewStep(workflow.Step):
-    def perform(self, string: str, boolean: bool, integer: int, optional=None):
+    def perform(self, string: str, boolean: bool, integer: int, key: str, optional=None):
         print(string)
         print(boolean, file=sys.stderr)
         error = self.workflow_context.get('error')
@@ -37,17 +40,57 @@ class NewStep(workflow.Step):
         return integer
 
 
-class Test:
-    def test_get_instance_parameters(self):
+class TestInstanceParameter:
+    def test(self):
+        parameter = dispatcher.InstanceParameter(name='name', value='value', type=str)
+        assert parameter.name == 'name'
+        assert parameter.value == 'value'
+        assert parameter.type == str
+
+
+class TestInstanceParameters:
+    def test(self):
+        parameter = InstanceParameter(name='name', value='value', type=str)
+        parameters = InstanceParameters([
+            parameter,
+        ])
+        assert len(parameters.parameters) == 1
+        assert parameters.parameters[0] == parameter
+
+    def test_from_step(self):
         step = steps.steps_register['new-step']
-        parameters = get_instance_parameters(step)
-        expected_parameters = {
-            'string': inspect.Parameter.empty,
-            'boolean': inspect.Parameter.empty,
-            'integer': inspect.Parameter.empty,
-            'optional': None,
-        }
+        parameters = InstanceParameters.from_step(step)
+        expected_parameters = InstanceParameters()
+        expected_parameters.parameters.append(InstanceParameter('string', inspect.Parameter.empty, str))
+        expected_parameters.parameters.append(InstanceParameter('boolean', inspect.Parameter.empty, bool))
+        expected_parameters.parameters.append(InstanceParameter('integer', inspect.Parameter.empty, int))
+        expected_parameters.parameters.append(InstanceParameter('key', inspect.Parameter.empty, str))
+        expected_parameters.parameters.append(InstanceParameter('optional', None, inspect.Parameter.empty))
         assert parameters == expected_parameters
+
+    def test_iter(self):
+        parameter = InstanceParameter(name='name', value='value', type=str)
+        parameters = InstanceParameters([
+            parameter,
+        ])
+        for index, parameter in enumerate(parameters):
+            assert parameter == parameters[index]
+
+    def test_getitem(self):
+        parameter = InstanceParameter(name='name', value='value', type=str)
+        parameters = InstanceParameters([
+            parameter,
+        ])
+        assert parameters[0] == parameter
+        assert parameters[parameter.name] == parameter
+
+    def test_delitem(self):
+        parameter = InstanceParameter(name='name', value='value', type=str)
+        parameters = InstanceParameters([
+            parameter,
+        ])
+        del parameters['name']
+        assert len(parameters.parameters) == 0
 
 
 class TestDispatcherAction:
@@ -146,6 +189,7 @@ def test_expected_status() -> Dict:
                                 'parameters': {
                                     'boolean': True,
                                     'integer': 1,
+                                    'key': 'value',
                                     'optional': 'error message',
                                     'string': 'test'
                                 },
@@ -186,6 +230,7 @@ def test_expected_status() -> Dict:
                                 'parameters': {
                                     'boolean': True,
                                     'integer': 1,
+                                    'key': 'value',
                                     'optional': 'error message',
                                     'string': 'test'
                                 },
@@ -222,27 +267,28 @@ def test_expected_status() -> Dict:
 class TestValidator:
     def test(self, test_configuration: configuration.Configuration):
         logger = logging.getLogger(TEST_LOGGER_NAME)
-        validator = dispatcher.Validator(logger, test_configuration, WORKFLOW_NAME)
+        validator = dispatcher.Validator(logger, test_configuration, WORKFLOW_NAME, PARAMETERS)
         assert validator.logger == logger
         assert validator.workflows_configuration == test_configuration
         assert validator.workflow_name == WORKFLOW_NAME
+        assert validator.parameters == PARAMETERS
 
     def test_validate(self, test_configuration: configuration.Configuration):
         logger = logging.getLogger(TEST_LOGGER_NAME)
-        validator = dispatcher.Validator(logger, test_configuration, WORKFLOW_NAME)
+        validator = dispatcher.Validator(logger, test_configuration, WORKFLOW_NAME, PARAMETERS)
         assert validator.validate() == True
 
     def test_validate_error_registered_steps(self, test_configuration: configuration.Configuration):
         logger = logging.getLogger(TEST_LOGGER_NAME)
         test_configuration.workflows[0].steps[0].parallels[0].id = 'missing-step'
-        validator = dispatcher.Validator(logger, test_configuration, WORKFLOW_NAME)
+        validator = dispatcher.Validator(logger, test_configuration, WORKFLOW_NAME, PARAMETERS)
         assert validator.validate() == False
 
     def test_validate_error_missing_parameter(self, test_configuration: configuration.Configuration):
         logger = logging.getLogger(TEST_LOGGER_NAME)
         test_configuration.workflows[0].steps[0].parallels[0].parameters[0].name = 'unknown-parameter'
         test_configuration.workflows[WORKFLOW_NAME].steps[0].parameters = Parameters([])
-        validator = dispatcher.Validator(logger, test_configuration, WORKFLOW_NAME)
+        validator = dispatcher.Validator(logger, test_configuration, WORKFLOW_NAME, PARAMETERS)
         assert validator.validate() == False
 
 
@@ -250,12 +296,13 @@ class TestRunner:
     def test(self, test_configuration: configuration.Configuration):
         path = Path('test.json')
         logger = logging.getLogger(TEST_LOGGER_NAME)
-        runner = dispatcher.Runner(logger, test_configuration, WORKFLOW_NAME)
+        runner = dispatcher.Runner(logger, test_configuration, WORKFLOW_NAME, PARAMETERS)
         runner.status_file = path
         assert runner.logger == logger
         assert runner.workflows_configuration == test_configuration
         assert runner.workflow_name == WORKFLOW_NAME
         assert runner.status_file == path
+        assert runner.parameters == PARAMETERS
 
     @patch('json.dump')
     @patch('pathlib.Path.open', new_callable=mock_open)
@@ -263,7 +310,7 @@ class TestRunner:
                  test_expected_status: Dict):
         path = Path('test.json')
         logger = logging.getLogger(TEST_LOGGER_NAME)
-        runner = dispatcher.Runner(logger, test_configuration, WORKFLOW_NAME)
+        runner = dispatcher.Runner(logger, test_configuration, WORKFLOW_NAME, PARAMETERS)
         runner.status_file = path
         runner.run()
         assert mock_dump.call_args[0][0] == test_expected_status
@@ -306,7 +353,7 @@ class TestRunner:
         test_expected_status['steps'][1]['status'] = 'not_started'
         path = Path('test.json')
         logger = logging.getLogger(TEST_LOGGER_NAME)
-        runner = dispatcher.Runner(logger, test_configuration, WORKFLOW_NAME)
+        runner = dispatcher.Runner(logger, test_configuration, WORKFLOW_NAME, PARAMETERS)
         runner.status_file = path
         runner.run()
         assert mock_dump.call_args[0][0] == test_expected_status
@@ -326,7 +373,7 @@ class TestRunner:
         test_expected_status['steps'][1]['children'][0]['children'][0]['error'] = 'error message'
         path = Path('test.json')
         logger = logging.getLogger(TEST_LOGGER_NAME)
-        runner = dispatcher.Runner(logger, test_configuration, WORKFLOW_NAME)
+        runner = dispatcher.Runner(logger, test_configuration, WORKFLOW_NAME, PARAMETERS)
         runner.status_file = path
         runner.run()
         assert mock_dump.call_args[0][0] == test_expected_status
@@ -352,6 +399,7 @@ class TestWorkflowDispatcher:
         workflow_dispatcher.configuration = test_configuration
         workflow_dispatcher.workflow_name = WORKFLOW_NAME
         workflow_dispatcher.status_file = None
+        workflow_dispatcher.parameters = PARAMETERS
         assert workflow_dispatcher.validate() == expected_validation_result
         mock_validator.assert_called_once()
 
@@ -376,9 +424,10 @@ class TestWorkflowDispatcher:
             workflow_dispatcher.configuration = test_configuration
             workflow_dispatcher.workflow_name = WORKFLOW_NAME
             workflow_dispatcher.status_file = Path('test.json')
+            workflow_dispatcher.parameters = PARAMETERS
             workflow_dispatcher.run()
             if validation_result:
-                mock_runner.assert_called_once_with(logger, test_configuration, WORKFLOW_NAME)
+                mock_runner.assert_called_once_with(logger, test_configuration, WORKFLOW_NAME, PARAMETERS)
                 assert mock_runner.return_value.status_file == workflow_dispatcher.status_file
                 mock_run.assert_called_once()
             else:
@@ -523,7 +572,7 @@ class TestWorkflowDispatcherBuilder:
         current_path = Path(test_cwd)
         path_new = Path.__new__
         with (patch.object(Path, '__new__', new=create_path_with_default_cwd(current_path, path_new)),
-              patch.object(Path,'joinpath', side_effect=create_mock_path_joinpath(return_values=mapping)),
+              patch.object(Path, 'joinpath', side_effect=create_mock_path_joinpath(return_values=mapping)),
               patch.object(Path, 'absolute', lambda original: original),
               patch.object(Path, 'resolve', lambda original: original)):
             if configuration_file:
@@ -578,9 +627,8 @@ class TestWorkflowDispatcherBuilder:
         workflow_dispatcher_builder = WorkflowDispatcherBuilder()
         status_file = 'test.json'
         test_cwd = '/tmp/module'
-        with patch.object(Path, 'absolute', lambda original: Path(test_cwd).joinpath(original)), patch.object(Path,
-                                                                                                              'resolve',
-                                                                                                              lambda original: original):
+        with (patch.object(Path, 'absolute', lambda original: Path(test_cwd).joinpath(original)),
+              patch.object(Path, 'resolve', lambda original: original)):
             returned_object = workflow_dispatcher_builder.status_file(status_file)
             expected_path = Path(f'{test_cwd}/{status_file}')
             assert returned_object == workflow_dispatcher_builder
@@ -616,6 +664,7 @@ class TestWorkflowDispatcherBuilder:
         workflow_dispatcher_builder.disable_current_path_import(disable_import)
         workflow_dispatcher_builder.status_file(status_file)
         workflow_dispatcher_builder.workflow_name(workflow_name)
+        workflow_dispatcher_builder.parameters(PARAMETERS)
         os.environ[dispatcher.MODULE_IMPORTS_ENVIRONMENT_VARIABLE] = f'{test_cwd}/duplicated:{test_cwd}/environment'
         expected_imports = [
             Path(f'{test_cwd}/environment'),
@@ -625,10 +674,9 @@ class TestWorkflowDispatcherBuilder:
         if not disable_import:
             expected_imports.insert(1, current_path)
         path_new = Path.__new__
-        with patch.object(Path, '__new__', new=create_path_with_default_cwd(current_path, path_new)), patch.object(Path,
-                                                                                                                   'resolve',
-                                                                                                                   lambda original: original), patch.object(
-            Path, 'absolute', lambda original: original):
+        with (patch.object(Path, '__new__', new=create_path_with_default_cwd(current_path, path_new)),
+              patch.object(Path, 'resolve', lambda original: original),
+              patch.object(Path, 'absolute', lambda original: original)):
             workflow_dispatcher_builder.build()
             mock_dispatcher = mock_dispatcher()
             assert mock_dispatcher.logger == logger

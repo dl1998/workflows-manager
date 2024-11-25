@@ -32,10 +32,36 @@ package "workflows_manager" {
         }
     }
 
+    package command_arguments {
+        class "<<module>>" {
+            + PARAMETERS_DELIMITER: str = ':'
+            - __create_parameters_group(subparser: ArgumentParser)
+            - __configure_run_action_subparser(parser)
+            - __configure_validate_action_subparser(parser)
+            - __configure_version_action_subparser(parser)
+            - __configure_action_subparsers(parser)
+            + get_args(): argparse.Namespace
+            - types_mapping: Dict[str, Union[typing.Type, typing.Callable]]
+            - __update_parameter(name: str, value: str, parameter_type: typing.Callable[[str], Any], parameters: Dict[str, Any])
+            - __add_parameters(parameters: Optional[List[str]], destination: Dict[str, Any], parameter_type: Optional[Callable[[str], Any]])
+            + get_parameters(namespace: argparse.Namespace) -> Dict[str, Any]
+        }
+    }
+
     package dispatcher {
         class "<<module>>" {
             + MODULE_IMPORTS_ENVIRONMENT_VARIABLE: str = 'WORKFLOWS_MANAGER_IMPORTS'
-            + get_instance_parameters(instance: workflow.Step): List[str]
+        }
+
+        class InstanceParameter {
+            + name: str
+            + value: Any
+            + type: typing.Type
+        }
+
+        class InstanceParameters {
+            + parameters: Dict[str, InstanceParameter]
+            + from_step(step: workflow.Step): InstanceParameters
         }
 
         enum DispatcherAction {
@@ -48,8 +74,13 @@ package "workflows_manager" {
             + logger: logging.Logger
             + workflows_configuration: configuration.Configuration
             + workflow_name: str
+            + parameters: Dict[str, Any]
+            - __validate_workflow_step_parameters(step_configuration: configuration.Step, parameters: Set[str])
+            - __validate_parallel_step_parameters(step_configuration: configuration.Step, parameters: Set[str])
+            - __validate_normal_step_parameters(step_configuration: configuration.Step, parameters: Set[str])
             - __validate_step_parameters(step_configuration: configuration.Step, parameters: Set[str])
             - __validate_steps_parameters(workflow_configuration: configuration.Workflow, parameters: Set[str])
+            - __collect_normal_steps(steps: List[configuration.Step]): List[configuration.Step]
             - __validate_registered_steps()
             + validate(): bool
         }
@@ -57,9 +88,10 @@ package "workflows_manager" {
         class Runner {
             + logger: logging.Logger
             + workflows_configuration: configuration.Configuration
-            + workflow_context: workflow.WorkflowContext
             + workflow_name: str
-            + statuses_file: pathlib.Path
+            + statuses_file: Optional[pathlib.Path]
+            + parameters: Dict[str, Any]
+            - __workflow_context: workflow.WorkflowContext
             - __initialize_step_information(statuses: workflow.StepInformation, step: configuration.Step, previous_step: Optional[workflow.StepInformation], parent: Optional[StepInformation]): StepInformation
             - __initialize_steps_information(statuses: workflow.StepInformation, steps: List[configuration.Step], previous_step: Optional[workflow.StepInformation], parent: Optional[StepInformation])
             - __initialize_workflow_context()
@@ -80,6 +112,7 @@ package "workflows_manager" {
             + configuration: configuration.Configuration
             + workflow_name: str
             + status_file: pathlib.Path
+            + parameters: Dict[str, Any]
             - __collect_modules_from_path(path: pathlib.Path): List[str]
             - __load_modules(package_path: pathlib.Path)
             - __load_packages(import_paths: List[pathlib.Path])
@@ -101,6 +134,7 @@ package "workflows_manager" {
             - __configuration_file_format: ConfigurationFormat
             - __workflow_name: str
             - __status_file: pathlib.Path
+            - __parameters: Dict[str, Any]
             + logger(logger: logging.Logger): WorkflowDispatcherBuilder
             + disable_current_path_import(disable: bool): WorkflowDispatcherBuilder
             + imports(imports: Optional[List[str]]): WorkflowDispatcherBuilder
@@ -108,12 +142,16 @@ package "workflows_manager" {
             + configuration_file: Optional[Union[str, pathlib.Path]]: WorkflowDispatcherBuilder
             + workflow_name(workflow_name: str): WorkflowDispatcherBuilder
             + status_file(status_file: Union[str, pathlib.Path]): WorkflowDispatcherBuilder
+            + parameters(parameters: Dict[str, Any]): WorkflowDispatcherBuilder
             - __get_combined_imports(): List[pathlib.Path]
             + build(): WorkflowDispatcher
         }
 
+        InstanceParameters "1" *-- "0..*" InstanceParameter : contains
+        WorkflowDispatcher "1" *-- "1" InstanceParameters : contains
         WorkflowDispatcher ..> Validator : uses
         WorkflowDispatcher ..> Runner : uses
+        WorkflowDispatcherBuilder "1" --* "1" InstanceParameters : contains
         WorkflowDispatcherBuilder "1" --* "1" ConfigurationFormat : contains
         WorkflowDispatcherBuilder ..> WorkflowDispatcher : produce
         WorkflowDispatcher ..> DispatcherAction : uses
@@ -123,6 +161,7 @@ package "workflows_manager" {
     package exceptions {
         class InvalidConfiguration extends Exception {}
         class MissingParameter extends InvalidConfiguration {}
+        class InvalidParameter extends InvalidConfiguration {}
         class MissingStep extends Exception {}
         class UnknownOption extends Exception {}
     }
@@ -294,10 +333,12 @@ package "workflows_manager" {
     "workflows_manager.dispatcher.<<module>>" ..> "workflows_manager.workflow.Step" : uses
     "workflows_manager.dispatcher.Validator" ..> "workflows_manager.exceptions.InvalidConfiguration" : uses
     "workflows_manager.dispatcher.Validator" ..> "workflows_manager.exceptions.MissingParameter" : uses
+    "workflows_manager.dispatcher.Validator" ..> "workflows_manager.exceptions.InvalidParameter" : uses
     "workflows_manager.dispatcher.Validator" ..> "workflows_manager.exceptions.MissingStep" : uses
     "workflows_manager.dispatcher.Validator" ..> "workflows_manager.exceptions.UnknownOption" : uses
     "workflows_manager.main.<<module>>" ..> "workflows_manager.logger.<<module>>" : uses
     "workflows_manager.main.<<module>>" ..> "workflows_manager.dispatcher.WorkflowDispatcherBuilder" : uses
     "workflows_manager.main.<<module>>" ..> "workflows_manager.dispatcher.DispatcherAction" : uses
+    "workflows_manager.main.<<module>>" ..> "workflows_manager.command_arguments.<<module>>" : uses
 }
 @enduml
