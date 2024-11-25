@@ -11,7 +11,7 @@ class Test:
     PROGRAM_NAME = 'workflows-manager'
 
     def test_get_args_imports_argument(self):
-        with patch('sys.argv', [self.PROGRAM_NAME, '--imports', 'path1', '--imports', 'path2', 'version']):
+        with patch('sys.argv', [self.PROGRAM_NAME, 'run', '--imports', 'path1', '--imports', 'path2', 'workflow-name']):
             args = get_args()
             expected = Namespace(
                 imports=['path1', 'path2'],
@@ -22,15 +22,24 @@ class Test:
                 configuration_file=None,
                 disable_error_codes=False,
                 disable_current_path_import=False,
-                action='version'
+                parameter=None,
+                string_parameter=None,
+                integer_parameter=None,
+                boolean_parameter=None,
+                float_parameter=None,
+                list_parameter=None,
+                dict_parameter=None,
+                status_file=None,
+                action='run',
+                workflow_name='workflow-name',
             )
             assert args == expected
 
     def test_get_args_log_level_argument(self):
-        with patch('sys.argv', [self.PROGRAM_NAME, '--log-level', 'debug', 'version']):
+        with patch('sys.argv', [self.PROGRAM_NAME, 'run', '--log-level', 'debug', 'workflow-name']):
             args = get_args()
             assert args.log_level == 'debug'
-            assert args.action == 'version'
+            assert args.action == 'run'
 
     def test_get_args_subcommand_version(self):
         with patch('sys.argv', [self.PROGRAM_NAME, 'version']):
@@ -51,7 +60,7 @@ class Test:
             assert args.workflow_name == 'example_workflow'
 
     def test_get_args_default_values(self):
-        with patch('sys.argv', [self.PROGRAM_NAME, 'version']):
+        with patch('sys.argv', [self.PROGRAM_NAME, 'run', 'workflow-name']):
             args = get_args()
             assert args.log_level == 'info'
             assert args.console_log_format == 'text'
@@ -59,7 +68,7 @@ class Test:
             assert args.log_file is None
 
     def test_get_args_disable_error_codes_flag(self):
-        with patch('sys.argv', [self.PROGRAM_NAME, '--disable-error-codes', 'version']):
+        with patch('sys.argv', [self.PROGRAM_NAME, 'run', '--disable-error-codes', 'workflow-name']):
             args = get_args()
             assert args.disable_error_codes
 
