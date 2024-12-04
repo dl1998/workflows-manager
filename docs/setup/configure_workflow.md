@@ -8,33 +8,8 @@ There are three types of steps that can be used in the workflows' configuration:
 - **workflow** - A workflow step is a step that executes another workflow.
 
 The configuration of the workflows can be done using a `*.yaml` or `*.json` file. The file should contain the definition
-of the workflows and its steps. General structure of the file is:
-
-```
-parameters (type: list, required: false)
-  name (type: str, required: true)
-  value (type: str, required: false)
-  from_context (type: str, required: false)
-workflows (type: map, required: true)
-  workflow-name (type: map, required: true)
-    parameters (type: list, required: false)
-      name (type: str, required: true)
-      value (type: str, required: false)
-      from_context (type: str, required: false)
-    steps (type: list, required: true)
-      name (type: str, required: true)
-      type (type: str, required: false, default: normal)
-      parameters (type: list, required: false)
-        name (type: str, required: true)
-        value (type: str, required: false)
-        from_context (type: str, required: false)
-      step (type: str, required: false)
-      workflow (type: str, required: false)
-      parallels (type: steps, required: false)
-      capture_stdout (type: bool, required: false, default: false)
-      capture_stderr (type: bool, required: false, default: false)
-      stop_on_error (type: bool, required: false, default: true)
-```
+of the workflows and its steps. You can check structure of the configuration file on
+[Developers -> Workflows Syntax](../developers/workflows_syntax.md) page.
 
 ## Create a new workflow
 

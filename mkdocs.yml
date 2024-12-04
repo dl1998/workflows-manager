@@ -111,6 +111,7 @@ nav:
     - tutorials/json_cleaning_workflow.md
   - Developers:
     - Architecture: developers/architecture.md
+    - "Workflows Syntax": developers/workflows_syntax.md
     - Modules:
       - "Module: configuration": developers/modules/configuration.md
       - "Module: dispatcher": developers/modules/dispatcher.md
