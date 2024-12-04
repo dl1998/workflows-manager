@@ -63,6 +63,7 @@ dependencies = [
   "PyYaml==6.0.2",
   "pytest==8.3.3",
   "coverage==7.6.4",
+  "behave==1.2.6",
 ]
 
 [tool.hatch.envs.test.scripts]
