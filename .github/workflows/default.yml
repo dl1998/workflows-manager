@@ -37,12 +37,12 @@ jobs:
           level: warning
           glob_pattern: "src/**/*.py"
 
-  code-coverage:
-    name: Run Tests and Generate Coverage Report
+  unit-tests:
+    name: Run Unit Tests with Coverage
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.9", "3.10", "3.11", "3.12", "3.13"]
+        python-version: [ "3.9", "3.10", "3.11", "3.12", "3.13" ]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
@@ -54,27 +54,58 @@ jobs:
         run: |
           python3 -m pip install hatch
           hatch env +py=${{ matrix.python-version }} create test
-      - name: Run Tests with Coverage
-        run: hatch run +py=${{ matrix.python-version }} test:coverage run --source="src" --data-file=".coverage.${{ matrix.python-version }}" -m pytest tests/workflows_manager/unit_tests
-      - name: Upload Coverage Data
+      - name: Run Unit Tests with Coverage
+        run: hatch run +py=${{ matrix.python-version }} test:coverage run --source="src" --data-file=".coverage.unit.${{ matrix.python-version }}" -m pytest tests/workflows_manager/unit_tests
+      - name: Upload Unit Test Coverage Data
         uses: actions/upload-artifact@v3
         with:
-          name: coverage-reports
-          path: .coverage.${{ matrix.python-version }}
+          name: unit-test-coverage-reports
+          path: .coverage.unit.${{ matrix.python-version }}
+          include-hidden-files: true
+
+  acceptance-tests:
+    name: Run Acceptance Tests with Coverage
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: [ "3.9", "3.10", "3.11", "3.12", "3.13" ]
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v2
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install Hatch and Dependencies
+        run: |
+          python3 -m pip install hatch
+          hatch env +py=${{ matrix.python-version }} create test
+      - name: Run Acceptance Tests with Coverage
+        run: hatch run +py=${{ matrix.python-version }} test:coverage run --source="src" --data-file=".coverage.acceptance.${{ matrix.python-version }}" -m behave tests/workflows_manager/acceptance_tests/features
+      - name: Upload Acceptance Test Coverage Data
+        uses: actions/upload-artifact@v3
+        with:
+          name: acceptance-test-coverage-reports
+          path: .coverage.acceptance.${{ matrix.python-version }}
           include-hidden-files: true
 
   combine-coverage:
     name: Combine Coverage Reports
     runs-on: ubuntu-latest
-    needs: code-coverage
+    needs: [ unit-tests, acceptance-tests ]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-      - name: Download Coverage Data Files
+      - name: Download Unit Test Coverage Data Files
         uses: actions/download-artifact@v3
         with:
-          name: coverage-reports
-          path: ./coverage-reports
+          name: unit-test-coverage-reports
+          path: ./coverage-reports/unit
+      - name: Download Acceptance Test Coverage Data Files
+        uses: actions/download-artifact@v3
+        with:
+          name: acceptance-test-coverage-reports
+          path: ./coverage-reports/acceptance
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -83,7 +114,7 @@ jobs:
         run: python3 -m pip install coverage
       - name: Combine Coverage Data
         run: |
-          coverage combine coverage-reports/.coverage.*
+          coverage combine ./coverage-reports/unit/.coverage.* ./coverage-reports/acceptance/.coverage.*
           coverage xml -o combined-coverage.xml
       - name: Upload Combined Coverage
         uses: actions/upload-artifact@v3
