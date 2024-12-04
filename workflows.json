@@ -1,0 +1,217 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Schema for the workflows.json file",
+  "description": "This schema describes the structure of the workflows.json file.",
+  "type": "object",
+  "$defs": {
+    "parameters": {
+      "type": "array",
+      "description": "List of parameters that will be passed to steps.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "description": "Parameter that will be passed to steps.",
+        "properties": {
+          "name": {
+            "type": "string",
+            "description": "Name of the parameter."
+          },
+          "value": {
+            "type": [
+              "string",
+              "integer",
+              "number",
+              "boolean",
+              "array",
+              "object"
+            ],
+            "description": "Value of the parameter. When used with 'from_context', this field works as default value, if the context value is not found."
+          },
+          "from_context": {
+            "type": "string",
+            "description": "Name of the context variable that will be used as value for this parameter."
+          }
+        },
+        "required": [
+          "name"
+        ],
+        "anyOf": [
+          {
+            "required": [
+              "value"
+            ]
+          },
+          {
+            "required": [
+              "from_context"
+            ]
+          }
+        ],
+        "unevaluatedProperties": false
+      }
+    },
+    "step": {
+      "type": "object",
+      "description": "Step that will be executed in the workflow.",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the step."
+        },
+        "parameters": {
+          "$ref": "#/$defs/parameters"
+        },
+        "capture_stdout": {
+          "type": "boolean",
+          "description": "Flag to specify whether to capture the standard output stream of the step."
+        },
+        "capture_stderr": {
+          "type": "boolean",
+          "description": "Flag to specify whether to capture the standard error stream of the step."
+        },
+        "type": {
+          "type": "string",
+            "description": "Type of the step, could be either 'normal', 'workflow' or 'parallel'.",
+          "enum": [
+            "normal",
+            "workflow",
+            "parallel"
+          ],
+          "default": "normal"
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "oneOf": [
+        {
+          "properties": {
+            "step": {
+              "type": "string",
+              "description": "Name of the step that will be executed. This step must be registered in the code."
+            }
+          },
+          "required": [
+            "step"
+          ]
+        },
+        {
+          "properties": {
+            "workflow": {
+              "type": "string",
+              "description": "Name of the workflow that will executed. This workflow must exists in the 'workflows' object."
+            }
+          },
+          "required": [
+            "workflow"
+          ]
+        },
+        {
+          "properties": {
+            "parallels": {
+              "type": "array",
+              "description": "List of steps that will be executed in parallel.",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/step"
+              }
+            }
+          },
+          "required": [
+            "parallels"
+          ]
+        }
+      ],
+      "dependencies": {
+        "type": {
+          "oneOf": [
+            {
+              "properties": {
+                "type": {
+                  "const": "normal"
+                },
+                "step": {
+                  "type": "string",
+                    "description": "Name of the step that will be executed. This step must be registered in the code."
+                }
+              },
+              "required": [
+                "step"
+              ]
+            },
+            {
+              "properties": {
+                "type": {
+                  "const": "workflow"
+                },
+                "workflow": {
+                  "type": "string",
+                  "description": "Name of the workflow that will executed. This workflow must exists in the 'workflows' object."
+                }
+              },
+              "required": [
+                "workflow"
+              ]
+            },
+            {
+              "properties": {
+                "type": {
+                  "const": "parallel"
+                },
+                "parallels": {
+                  "type": "array",
+                  "description": "List of steps that will be executed in parallel.",
+                  "minItems": 1,
+                  "items": {
+                    "$ref": "#/$defs/step"
+                  }
+                }
+              },
+              "required": [
+                "parallels"
+              ]
+            }
+          ]
+        }
+      },
+      "unevaluatedProperties": false
+    }
+  },
+  "properties": {
+    "parameters": {
+      "$ref": "#/$defs/parameters"
+    },
+    "workflows": {
+      "type": "object",
+      "description": "List of workflows that could be executed.",
+      "minProperties": 1,
+      "patternProperties": {
+        "^[\\w-]+$": {
+          "type": "object",
+          "description": "Workflow definition that could be executed.",
+          "properties": {
+            "parameters": {
+              "$ref": "#/$defs/parameters"
+            },
+            "steps": {
+              "type": "array",
+              "description": "List of steps that will be executed in the workflow.",
+              "minItems": 1,
+              "items": {
+                "$ref": "#/$defs/step"
+              }
+            }
+          },
+          "required": [
+            "steps"
+          ],
+          "additionalProperties": false
+        }
+      }
+    }
+  },
+  "required": [
+    "workflows"
+  ],
+  "additionalProperties": false
+}
