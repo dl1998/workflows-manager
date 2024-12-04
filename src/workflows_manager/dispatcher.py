@@ -829,12 +829,12 @@ class WorkflowDispatcherBuilder:
         self.__workflow_name = workflow_name
         return self
 
-    def status_file(self, status_file: Union[str, Path]):
+    def status_file(self, status_file: Optional[Union[str, Path]]):
         """
         A method to set the status file.
 
         :param status_file: The path to the file where the statuses of the particular steps will be stored.
-        :type status_file: Union[str, Path]
+        :type status_file: Optional[Union[str, Path]]
         :return: WorkflowDispatcherBuilder instance.
         :rtype: WorkflowDispatcherBuilder
         """
