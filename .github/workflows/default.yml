@@ -53,15 +53,20 @@ jobs:
       - name: Install Hatch and Dependencies
         run: |
           python3 -m pip install hatch
-          hatch env +py=${{ matrix.python-version }} create test
+          hatch env create test
       - name: Run Unit Tests with Coverage
-        run: hatch run +py=${{ matrix.python-version }} test:coverage run --source="src" --data-file=".coverage.unit.${{ matrix.python-version }}" -m pytest tests/workflows_manager/unit_tests
-      - name: Upload Unit Test Coverage Data
+        run: |
+          mkdir -p reports
+          hatch env run -e test -i py=${{ matrix.python-version }} -- \
+          coverage run --source="src" --data-file="$(pwd)/reports/.coverage.unit.${{ matrix.python-version }}" -m \
+          pytest tests/workflows_manager/unit_tests \
+            --junitxml=$(pwd)/reports/junit.unit.${{ matrix.python-version }}.xml
+      - name: Upload Unit Test Reports
         uses: actions/upload-artifact@v3
         with:
-          name: unit-test-coverage-reports
-          path: .coverage.unit.${{ matrix.python-version }}
           include-hidden-files: true
+          name: unit-test-reports
+          path: reports
 
   acceptance-tests:
     name: Run Acceptance Tests with Coverage
@@ -79,62 +84,69 @@ jobs:
       - name: Install Hatch and Dependencies
         run: |
           python3 -m pip install hatch
-          hatch env +py=${{ matrix.python-version }} create test
+          hatch env create test
       - name: Run Acceptance Tests with Coverage
-        run: hatch run +py=${{ matrix.python-version }} test:coverage run --source="src" --data-file=".coverage.acceptance.${{ matrix.python-version }}" -m behave tests/workflows_manager/acceptance_tests/features
-      - name: Upload Acceptance Test Coverage Data
+        run: |
+          mkdir -p temp_reports
+          mkdir -p reports
+          hatch env run -e test -i py=${{ matrix.python-version }} -- \
+          coverage run --source="src" --data-file="$(pwd)/reports/.coverage.acceptance.${{ matrix.python-version }}" -m \
+          behave tests/workflows_manager/acceptance_tests/features \
+            --junit --junit-directory=$(pwd)/temp_reports
+          hatch env run -e test -i py=${{ matrix.python-version }} -- junitparser merge $(pwd)/temp_reports/*.xml $(pwd)/reports/junit.acceptance.${{ matrix.python-version }}.xml
+      - name: Upload Acceptance Test Reports
         uses: actions/upload-artifact@v3
         with:
-          name: acceptance-test-coverage-reports
-          path: .coverage.acceptance.${{ matrix.python-version }}
           include-hidden-files: true
+          name: acceptance-test-reports
+          path: reports
 
-  combine-coverage:
-    name: Combine Coverage Reports
+  combine-reports:
+    name: Combine JUnit and Coverage Reports
     runs-on: ubuntu-latest
     needs: [ unit-tests, acceptance-tests ]
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v2
-      - name: Download Unit Test Coverage Data Files
-        uses: actions/download-artifact@v3
-        with:
-          name: unit-test-coverage-reports
-          path: ./coverage-reports/unit
-      - name: Download Acceptance Test Coverage Data Files
-        uses: actions/download-artifact@v3
-        with:
-          name: acceptance-test-coverage-reports
-          path: ./coverage-reports/acceptance
-      - name: Set up Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: "3.11"
-      - name: Install Coverage Tools
-        run: python3 -m pip install coverage
-      - name: Combine Coverage Data
+      - name: Install Hatch and Dependencies
         run: |
-          coverage combine ./coverage-reports/unit/.coverage.* ./coverage-reports/acceptance/.coverage.*
-          coverage xml -o combined-coverage.xml
-      - name: Upload Combined Coverage
+          python3 -m pip install hatch
+      - name: Download Unit Test Reports
+        uses: actions/download-artifact@v3
+        with:
+          name: unit-test-reports
+          path: ./reports/unit
+      - name: Download Acceptance Test Reports
+        uses: actions/download-artifact@v3
+        with:
+          name: acceptance-test-reports
+          path: ./reports/acceptance
+      - name: Combine JUnit Reports
+        run: |
+          hatch run +py=3.13 test:junitparser merge ./reports/acceptance/junit.acceptance.*.xml ./reports/unit/junit.unit.*.xml ./reports/combined-junit.xml
+      - name: Combine Coverage Reports
+        run: |
+          ls -lah ./reports
+          ls -lah ./reports/unit
+          ls -lah ./reports/acceptance
+          hatch run +py=3.13 test:coverage combine ./reports/unit/.coverage.* ./reports/acceptance/.coverage.*
+          hatch run +py=3.13 test:coverage xml -o ./reports/combined-coverage.xml
+      - name: Upload Combined Reports
         uses: actions/upload-artifact@v3
         with:
-          name: combined-coverage
-          include-hidden-files: true
-          path: |
-            combined-coverage.xml
-            .coverage
+          name: combined-reports
+          path: ./reports
 
   check-pr-coverage:
     name: Check Pull Request Coverage
     runs-on: ubuntu-latest
-    needs: combine-coverage
+    needs: combine-reports
     if: github.event_name == 'pull_request'
     steps:
       - name: Download Combined Coverage
         uses: actions/download-artifact@v3
         with:
-          name: combined-coverage
+          name: combined-reports
           path: .
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -143,25 +155,30 @@ jobs:
       - name: Check Coverage Threshold
         uses: orgoro/coverage@v3.1
         with:
-          coverageFile: combined-coverage.xml
+          coverageFile: ./combined-coverage.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           thresholdAll: ${{ env.THRESHOLD }}
 
   upload-codecov:
     name: Upload to Codecov
     runs-on: ubuntu-latest
-    needs: combine-coverage
+    needs: combine-reports
     steps:
-      - name: Download Combined Coverage
+      - name: Download Combined Reports
         uses: actions/download-artifact@v3
         with:
-          name: combined-coverage
-          path: .
-      - name: Upload to Codecov
+          name: combined-reports
+          path: ./reports
+      - name: Upload Coverage to Codecov
         uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
-          files: combined-coverage.xml
+          files: ./reports/combined-coverage.xml
+      - name: Upload Test Results to Codecov
+        uses: codecov/test-results-action@v1
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          files: ./reports/combined-junit.xml
 
   add-badges:
     name: Add Badges
@@ -174,7 +191,7 @@ jobs:
       - name: Download Combined Coverage
         uses: actions/download-artifact@v3
         with:
-          name: combined-coverage
+          name: combined-reports
           path: .
       - name: Set up Python
         uses: actions/setup-python@v5
