@@ -126,16 +126,17 @@ jobs:
           hatch run +py=3.13 test:junitparser merge ./reports/acceptance/junit.acceptance.*.xml ./reports/unit/junit.unit.*.xml ./reports/combined-junit.xml
       - name: Combine Coverage Reports
         run: |
-          ls -lah ./reports
-          ls -lah ./reports/unit
-          ls -lah ./reports/acceptance
           hatch run +py=3.13 test:coverage combine ./reports/unit/.coverage.* ./reports/acceptance/.coverage.*
           hatch run +py=3.13 test:coverage xml -o ./reports/combined-coverage.xml
       - name: Upload Combined Reports
         uses: actions/upload-artifact@v3
         with:
+          include-hidden-files: true
           name: combined-reports
-          path: ./reports
+          path: |
+            ./reports/combined-coverage.xml
+            ./reports/combined-junit.xml
+            ./.coverage
 
   check-pr-coverage:
     name: Check Pull Request Coverage
@@ -155,7 +156,7 @@ jobs:
       - name: Check Coverage Threshold
         uses: orgoro/coverage@v3.1
         with:
-          coverageFile: ./combined-coverage.xml
+          coverageFile: ./reports/combined-coverage.xml
           token: ${{ secrets.GITHUB_TOKEN }}
           thresholdAll: ${{ env.THRESHOLD }}
 
