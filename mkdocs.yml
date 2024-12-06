@@ -107,6 +107,7 @@ nav:
       - Write a Step: setup/write_a_step.md
       - Configure Workflow: setup/configure_workflow.md
       - CLI: setup/cli.md
+      - Docker Image: setup/docker.md
   - Tutorials:
     - tutorials/json_cleaning_workflow.md
   - Developers:
