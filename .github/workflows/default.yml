@@ -255,6 +255,11 @@ jobs:
                 "badge": "https://img.shields.io/badge/Coverage-${{ env.TOTAL_COVERAGE }}%25-${{ env.color }}.svg?style=for-the-badge",
                 "alt": "Coverage ${{ env.TOTAL_COVERAGE }}%",
                 "link": "https://codecov.io/gh/${{ github.repository }}"
+              },
+              {
+                "badge": "https://img.shields.io/badge/Docker-dl1998%2Fworkflows-manager?style=for-the-badge&color=blue",
+                "alt": "${{ github.repository }}",
+                "link": "https://hub.docker.com/repository/docker/${{ github.repository }}"
               }
             ]
           path: README.md
