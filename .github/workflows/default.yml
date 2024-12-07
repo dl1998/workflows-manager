@@ -257,7 +257,7 @@ jobs:
                 "link": "https://codecov.io/gh/${{ github.repository }}"
               },
               {
-                "badge": "https://img.shields.io/badge/Docker-dl1998%2Fworkflows-manager?style=for-the-badge&color=blue",
+                "badge": "https://img.shields.io/badge/Docker-dl1998%2Fworkflows-manager?style=for-the-badge&logo=docker&color=%232496ED",
                 "alt": "${{ github.repository }}",
                 "link": "https://hub.docker.com/repository/docker/${{ github.repository }}"
               }
