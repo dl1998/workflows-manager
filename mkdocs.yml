@@ -80,8 +80,8 @@ plugins:
   - autorefs:
       resolve_closest: true
   - build_plantuml:
-      render: 'server'
-      bin_path: '/usr/local/bin/plantuml'
+      render: 'local'
+      bin_path: 'plantuml'
       server: 'http://www.plantuml.com/plantuml'
       disable_ssl_certificate_validation: true
       output_format: 'svg'
