@@ -1,5 +1,10 @@
 @startuml
-!include ../include/themes/light.puml
+
+!if %variable_exists("darkmode")
+    !include ../include/themes/dark.puml
+!else
+    !include ../include/themes/light.puml
+!endif
 
 package logging {}
 
