@@ -110,7 +110,7 @@ class Steps:
     :param elements: List of steps.
     :type elements: List[Step]
     """
-    elements: List['Step'] = field(default_factory=list)
+    elements: List[Union['NormalStep', 'WorkflowStep', 'ParallelStep']] = field(default_factory=list)
 
     def __iter__(self):
         return iter(self.elements)
@@ -179,42 +179,82 @@ class Step:
 
     :param name: Name of the step.
     :type name: str
-    :param id: ID of the step (name of the step used when registering the step).
-    :type id: Optional[str]
-    :param workflow: Name of the workflow that should be executed.
-    :type workflow: Optional[str]
-    :param parallels: List of parallel steps.
-    :type parallels: Steps
-    :param type: Type of the step.
-    :type type: StepType
-    :param capture_stdout: Flag that indicates whether the stdout should be captured.
-    :type capture_stdout: bool
-    :param capture_stderr: Flag that indicates whether the stderr should be captured.
-    :type capture_stderr: bool
     :param parameters: List of step parameters.
     :type parameters: Parameters
     :param stop_on_error: Flag that indicates whether the workflow should stop on error.
     :type stop_on_error: bool
     """
     name: str
-    id: Optional[str] = field(default=None)
-    workflow: Optional[str] = field(default=None)
-    parallels: Optional['Steps'] = field(default_factory=Steps)
-    type: StepType = field(default=StepType.NORMAL)
-    capture_stdout: bool = field(default=False)
-    capture_stderr: bool = field(default=False)
     parameters: Parameters = field(default_factory=Parameters)
     stop_on_error: bool = field(default=True)
-
-    def __post_init__(self):
-        if self.name is None or self.name == '':
-            if self.id is not None and self.id != '':
-                self.name = self.id
-            elif self.workflow is not None and self.workflow != '':
-                self.name = self.workflow
+    type: StepType = field(init=False)
 
     @classmethod
-    def from_dict(cls, data: dict) -> 'Step':
+    def from_dict(cls, data: dict) -> Union['NormalStep', 'WorkflowStep', 'ParallelStep']:
+        """
+        Create a new instance of the class from the dictionary.
+
+        :param data: Dictionary with step data.
+        :type data: dict
+        :return: New instance of the class.
+        :rtype: Step
+        """
+        try:
+            step_type = data.get('type', None)
+            if step_type is None:
+                if 'step' in data and 'workflow' not in data and 'parallels' not in data:
+                    step_type = StepType.NORMAL.value
+                elif 'workflow' in data and 'step' not in data and 'parallels' not in data:
+                    step_type = StepType.WORKFLOW.value
+                elif 'parallels' in data and 'step' not in data and 'workflow' not in data:
+                    step_type = StepType.PARALLEL.value
+            if step_type == StepType.NORMAL.value:
+                return NormalStep.from_dict(data)
+            if step_type == StepType.WORKFLOW.value:
+                return WorkflowStep.from_dict(data)
+            if step_type == StepType.PARALLEL.value:
+                return ParallelStep.from_dict(data)
+            raise InvalidConfiguration(
+                f"Step ({data.get('name', None)}) type must be either 'normal', 'parallel', or 'workflow'.")
+        except Exception as exception:
+            raise InvalidConfiguration(f"Invalid step configuration: {exception}") from exception
+
+    def validate_all(self):
+        """
+        Validate the step. Check if the type is valid and if the step has all required attributes.
+        """
+        self.parameters.validate_all()
+
+
+@dataclass
+class NormalStep(Step):
+    """
+    Class that represents a normal step in the workflow.
+
+    :param name: Name of the step.
+    :type name: str
+    :param parameters: List of step parameters.
+    :type parameters: Parameters
+    :param stop_on_error: Flag that indicates whether the workflow should stop on error.
+    :type stop_on_error: bool
+    :param id: ID of the step (name of the step used when registering the step).
+    :type id: Optional[str]
+    :param capture_stdout: Flag that indicates whether the stdout should be captured.
+    :type capture_stdout: bool
+    :param capture_stderr: Flag that indicates whether the stderr should be captured.
+    :type capture_stderr: bool
+    """
+    id: Optional[str] = field(default=None)
+    capture_stdout: bool = field(default=False)
+    capture_stderr: bool = field(default=False)
+
+    def __post_init__(self):
+        self.type = StepType.NORMAL
+        if self.name is None or self.name == '':
+            self.name = self.id
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'NormalStep':
         """
         Create a new instance of the class from the dictionary.
 
@@ -226,14 +266,11 @@ class Step:
         try:
             return cls(**{
                 'name': data.get('name'),
-                'id': data.get('step'),
-                'workflow': data.get('workflow'),
-                'type': StepType.from_str(data.get('type', 'normal')),
                 'parameters': Parameters.from_dict(data.get('parameters', [])),
+                'stop_on_error': data.get('stop_on_error', True),
+                'id': data.get('step'),
                 'capture_stdout': data.get('capture_stdout', False),
                 'capture_stderr': data.get('capture_stderr', False),
-                'stop_on_error': data.get('stop_on_error', True),
-                'parallels': Steps.from_dict(data.get('parallels', []))
             })
         except Exception as exception:
             raise InvalidConfiguration(f"Invalid step configuration: {exception}") from exception
@@ -242,15 +279,106 @@ class Step:
         """
         Validate the step. Check if the type is valid and if the step has all required attributes.
         """
-        if not self.type or self.type not in StepType:
-            raise InvalidConfiguration("Step type must be either 'normal', 'parallel', or 'workflow'.")
-        if self.type == StepType.PARALLEL and (self.parallels is None or len(self.parallels.elements) == 0):
-            raise InvalidConfiguration("Parallel step must have 'parallels' attribute.")
-        if self.type == StepType.WORKFLOW and self.workflow is None:
-            raise InvalidConfiguration("Workflow step must have 'workflow' attribute.")
-        if self.type == StepType.NORMAL and self.id is None:
-            raise InvalidConfiguration("Normal step must have 'step' attribute.")
-        self.parameters.validate_all()
+        super().validate_all()
+        if self.id is None or self.id == '':
+            raise InvalidConfiguration("Step ID cannot be empty.")
+
+
+@dataclass
+class WorkflowStep(Step):
+    """
+    Class that represents a workflow step in the workflow.
+
+    :param name: Name of the step.
+    :type name: str
+    :param parameters: List of step parameters.
+    :type parameters: Parameters
+    :param stop_on_error: Flag that indicates whether the workflow should stop on error.
+    :type stop_on_error: bool
+    :param workflow: Name of the workflow that should be executed.
+    :type workflow: Optional[str]
+    """
+    workflow: Optional[str] = field(default=None)
+
+    def __post_init__(self):
+        self.type = StepType.WORKFLOW
+        if self.name is None or self.name == '':
+            self.name = self.workflow
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'WorkflowStep':
+        """
+        Create a new instance of the class from the dictionary.
+
+        :param data: Dictionary with step data.
+        :type data: dict
+        :return: New instance of the class.
+        :rtype: Step
+        """
+        try:
+            return cls(**{
+                'name': data.get('name'),
+                'parameters': Parameters.from_dict(data.get('parameters', [])),
+                'stop_on_error': data.get('stop_on_error', True),
+                'workflow': data.get('workflow'),
+            })
+        except Exception as exception:
+            raise InvalidConfiguration(f"Invalid step configuration: {exception}") from exception
+
+    def validate_all(self):
+        """
+        Validate the step. Check if the type is valid and if the step has all required attributes.
+        """
+        super().validate_all()
+        if self.workflow is None or self.workflow == '':
+            raise InvalidConfiguration("Workflow name cannot be empty.")
+
+
+@dataclass
+class ParallelStep(Step):
+    """
+    Class that represents a parallel step in the workflow.
+
+    :param name: Name of the step.
+    :type name: str
+    :param parameters: List of step parameters.
+    :type parameters: Parameters
+    :param stop_on_error: Flag that indicates whether the workflow should stop on error.
+    :type stop_on_error: bool
+    :param parallels: List of parallel steps.
+    :type parallels: Steps
+    """
+    parallels: Steps = field(default_factory=Steps)
+
+    def __post_init__(self):
+        self.type = StepType.PARALLEL
+
+    @classmethod
+    def from_dict(cls, data: dict) -> 'ParallelStep':
+        """
+        Create a new instance of the class from the dictionary.
+
+        :param data: Dictionary with step data.
+        :type data: dict
+        :return: New instance of the class.
+        :rtype: Step
+        """
+        try:
+            return cls(**{
+                'name': data.get('name'),
+                'parameters': Parameters.from_dict(data.get('parameters', [])),
+                'stop_on_error': data.get('stop_on_error', True),
+                'parallels': Steps.from_dict(data.get('parallels', [])),
+            })
+        except Exception as exception:
+            raise InvalidConfiguration(f"Invalid step configuration: {exception}") from exception
+
+    def validate_all(self):
+        """
+        Validate the step. Check if the type is valid and if the step has all required attributes.
+        """
+        super().validate_all()
+        self.parallels.validate_all()
 
 
 @dataclass
