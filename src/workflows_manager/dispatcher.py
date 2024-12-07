@@ -17,7 +17,7 @@ from typing import Union, List, Dict, Any, Optional, Set, Type
 
 from workflows_manager import configuration
 from workflows_manager import workflow
-from workflows_manager.configuration import Workflow, Parameters, StepType
+from workflows_manager.configuration import Workflow, Parameters, StepType, StepUnion
 from workflows_manager.exceptions import MissingStep, MissingParameter, UnknownOption, InvalidConfiguration
 from workflows_manager.workflow import StepsInformation, StepStatus, StepInformation, StepPath, WorkflowContext
 
@@ -331,7 +331,7 @@ class Runner:
         self.status_file = None
         self.parameters = parameters
 
-    def __initialize_step_information(self, statuses: StepsInformation, step: Union[configuration.NormalStep, configuration.WorkflowStep, configuration.ParallelStep],
+    def __initialize_step_information(self, statuses: StepsInformation, step: StepUnion,
                                       previous_step: Optional[StepInformation] = None,
                                       parent: Optional[StepInformation] = None) -> StepInformation:
         """
@@ -340,7 +340,7 @@ class Runner:
         :param statuses: The statuses of the steps.
         :type statuses: StepsInformation
         :param step: The step configuration.
-        :type step: Union[configuration.NormalStep, configuration.WorkflowStep, configuration.ParallelStep]
+        :type step: StepUnion
         :param previous_step: The previous step in the workflow.
         :type previous_step: Optional[StepInformation]
         :param parent: The parent step in the workflow.
@@ -365,7 +365,7 @@ class Runner:
             parent.children.append(step_status)
         return step_status
 
-    def __initialize_steps_information(self, statuses: StepsInformation, steps: List[Union[configuration.NormalStep, configuration.WorkflowStep, configuration.ParallelStep]],
+    def __initialize_steps_information(self, statuses: StepsInformation, steps: List[StepUnion],
                                        previous_step: Optional[StepInformation] = None,
                                        parent: Optional[StepInformation] = None):
         """
@@ -374,7 +374,7 @@ class Runner:
         :param statuses: The statuses of the steps.
         :type statuses: StepsInformation
         :param steps: The steps' configuration.
-        :type steps: List[Union[configuration.NormalStep, configuration.WorkflowStep, configuration.ParallelStep]]
+        :type steps: List[StepUnion]
         :param previous_step: The previous step in the workflow.
         :type previous_step: Optional[StepInformation]
         :param parent: The parent step in the workflow.
@@ -522,13 +522,12 @@ class Runner:
             if thread.exception:
                 raise thread.exception
 
-    def __run_step(self, step: Union[configuration.NormalStep, configuration.WorkflowStep, configuration.ParallelStep],
-                   parent_step_path: Optional[StepPath], parameters: Dict[str, Any]):
+    def __run_step(self, step: StepUnion, parent_step_path: Optional[StepPath], parameters: Dict[str, Any]):
         """
         A method to run a step.
 
         :param step: The step configuration.
-        :type step: Union[configuration.NormalStep, configuration.WorkflowStep, configuration.ParallelStep]
+        :type step: StepUnion
         :param parent_step_path: The path to the parent step.
         :type parent_step_path: Optional[StepPath]
         :param parameters: The parameters provided to the step.

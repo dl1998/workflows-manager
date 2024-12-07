@@ -17,6 +17,9 @@ PARAMETER_NAME_REGEX = re.compile(r'^[a-z0-9_]+$')
 WORKFLOW_NAME_REGEX = re.compile(r'^[a-z0-9_-]+$')
 
 
+StepUnion = Union['NormalStep', 'WorkflowStep', 'ParallelStep']
+
+
 @dataclass
 class Parameter:
     """
