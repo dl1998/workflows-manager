@@ -4,7 +4,7 @@ from unittest.mock import patch, mock_open
 import pytest
 
 from workflows_manager.configuration import Parameter, Parameters, Steps, Step, StepType, Workflow, Workflows, \
-    Configuration
+    Configuration, NormalStep, WorkflowStep, ParallelStep
 from workflows_manager.exceptions import InvalidConfiguration
 
 
@@ -117,17 +117,21 @@ class TestParameters:
 class TestSteps:
     def test(self):
         parameters = Parameters([Parameter('name', 'value', 'from_context')])
-        step = Step('name', 'id', parameters=parameters)
-        steps = Steps([step])
-        assert len(steps.elements) == 1
-        assert steps.elements[0] == step
+        normal_step = NormalStep('name', id='step', parameters=parameters)
+        workflow_step = WorkflowStep('name', workflow='workflow', parameters=parameters)
+        parallel_step = ParallelStep('name', parallels=Steps([normal_step]))
+        steps = Steps([normal_step, workflow_step, parallel_step])
+        assert len(steps.elements) == 3
+        assert steps.elements[0] == normal_step
+        assert steps.elements[1] == workflow_step
+        assert steps.elements[2] == parallel_step
 
     def test_default(self):
         steps = Steps()
         assert steps.elements == []
 
     def test_iter(self):
-        steps = Steps([Step('name', 'id')])
+        steps = Steps([NormalStep('name', id='id')])
         for step in steps:
             assert step.name == 'name'
             assert step.id == 'id'
@@ -151,18 +155,19 @@ class TestSteps:
         assert steps.elements[0].parameters.elements[0].from_context == elements[0]['parameters'][0]['from_context']
 
     def test_validate_all(self):
-        steps = Steps([Step('name', 'id')])
+        steps = Steps([NormalStep('name', id='id')])
         try:
             steps.validate_all()
         except InvalidConfiguration:
             assert False
 
     @pytest.mark.parametrize('steps, expected_error', [
-            (Steps([Step('name', 'id'), Step('name', 'id')]), "Step with a name 'name' occurs multiple times within the same steps context."),
-            (Steps([]), "Steps list cannot be empty."),
-        ], ids=[
-            'duplicated step name',
-            'empty steps list'
+        (Steps([NormalStep('name', id='id'), NormalStep('name', id='id')]),
+         "Step with a name 'name' occurs multiple times within the same steps context."),
+        (Steps([]), "Steps list cannot be empty."),
+    ], ids=[
+        'duplicated step name',
+        'empty steps list'
     ])
     def test_validate_all_duplicated_step_name(self, steps: Steps, expected_error: str):
         try:
@@ -197,69 +202,56 @@ class TestStepType:
 class TestStep:
     def test(self):
         parameters = Parameters([Parameter('name', 'value', 'from_context')])
-        step = Step('name', 'id', parameters=parameters, type=StepType.NORMAL, capture_stderr=True, capture_stdout=True,
-                    stop_on_error=False, workflow='workflow', parallels=Steps())
+        step = Step('name', parameters=parameters, stop_on_error=False)
         assert step.name == 'name'
-        assert step.id == 'id'
         assert step.parameters == parameters
-        assert step.type == StepType.NORMAL
-        assert step.capture_stderr is True
-        assert step.capture_stdout is True
         assert step.stop_on_error is False
-        assert step.workflow == 'workflow'
-        assert step.parallels == Steps()
 
     def test_default(self):
-        step = Step('name', 'id')
+        step = Step('name')
         assert step.name == 'name'
-        assert step.id == 'id'
         assert step.parameters == Parameters()
-        assert step.type == StepType.NORMAL
-        assert step.capture_stderr is False
-        assert step.capture_stdout is False
         assert step.stop_on_error is True
-        assert step.workflow is None
-        assert step.parallels == Steps()
 
-    @pytest.mark.parametrize('name, step, workflow, expected_name', [
-        ('name', '', '', 'name'),
-        ('', 'step', '', 'step'),
-        ('', '', 'workflow', 'workflow')
+    @pytest.mark.parametrize('step_type', [
+        StepType.NORMAL,
+        StepType.WORKFLOW,
+        StepType.PARALLEL
     ], ids=[
-        'with step name',
-        'with step id',
-        'with workflow name'
+        'normal step',
+        'workflow step',
+        'parallel step'
     ])
-    def test_name(self, name: str, step: str, workflow: str, expected_name: str):
-        step = Step(name=name, id=step, workflow=workflow)
-        assert step.name == expected_name
-
-    def test_from_dict(self):
+    def test_from_dict(self, step_type: StepType):
         elements = {
             'name': 'name',
             'step': 'id',
             'parameters': [
                 {'name': 'name', 'value': 'value', 'from_context': 'from_context'}
             ],
-            'type': 'normal',
+            'type': step_type.value,
             'capture_stderr': True,
             'capture_stdout': True,
             'stop_on_error': False,
             'workflow': 'workflow',
             'parallels': []
         }
+
         step = Step.from_dict(elements)
+
         assert step.name == elements['name']
-        assert step.id == elements['step']
         assert step.parameters.elements[0].name == elements['parameters'][0]['name']
         assert step.parameters.elements[0].value == elements['parameters'][0]['value']
         assert step.parameters.elements[0].from_context == elements['parameters'][0]['from_context']
-        assert step.type == StepType.NORMAL
-        assert step.capture_stderr is True
-        assert step.capture_stdout is True
         assert step.stop_on_error is False
-        assert step.workflow == 'workflow'
-        assert step.parallels.elements == []
+        if step_type == StepType.NORMAL:
+            assert step.id == elements['step']
+            assert step.capture_stderr is True
+            assert step.capture_stdout is True
+        elif step_type == StepType.WORKFLOW:
+            assert step.workflow == elements['workflow']
+        elif step_type == StepType.PARALLEL:
+            assert step.parallels == Steps()
 
     def test_from_dict_error(self):
         try:
@@ -267,38 +259,19 @@ class TestStep:
             assert False
         except InvalidConfiguration as exception:
             assert str(
-                exception) == "Invalid step configuration: Step type must be either 'normal', 'parallel', or 'workflow'."
+                exception) == "Invalid step configuration: Step (None) type must be either 'normal', 'parallel', or 'workflow'."
 
     def test_validate_all(self):
-        step = Step('name', 'id')
+        step = Step('name')
         try:
             step.validate_all()
         except InvalidConfiguration:
             assert False
 
-    @pytest.mark.parametrize('step_type, expected_error', [
-        ('', "Step type must be either 'normal', 'parallel', or 'workflow'."),
-        (StepType.WORKFLOW, "Workflow step must have 'workflow' attribute."),
-        (StepType.PARALLEL, "Parallel step must have 'parallels' attribute."),
-        (StepType.NORMAL, "Normal step must have 'step' attribute."),
-    ], ids=[
-        'incorrect type',
-        'workflow step without workflow name',
-        'parallel step without parallels',
-        'normal step without step id',
-    ])
-    def test_validate_all_error(self, step_type: StepType, expected_error: str):
-        step = Step('name', type=step_type)
-        try:
-            step.validate_all()
-            assert False
-        except InvalidConfiguration as exception:
-            assert str(exception) == expected_error
-
 
 class TestWorkflow:
     def test(self):
-        steps = Steps([Step('name', 'id')])
+        steps = Steps([NormalStep('name', id='id')])
         parameters = Parameters([Parameter('name', 'value', 'from_context')])
         workflow = Workflow('name', steps, parameters)
         assert workflow.name == 'name'
@@ -306,7 +279,7 @@ class TestWorkflow:
         assert workflow.parameters == parameters
 
     def test_default(self):
-        steps = Steps([Step('name', 'id')])
+        steps = Steps([NormalStep('name', id='id')])
         workflow = Workflow('name', steps)
         assert workflow.name == 'name'
         assert workflow.steps == steps
@@ -348,7 +321,7 @@ class TestWorkflow:
                 exception) == "Invalid workflow configuration: Invalid steps configuration: 'NoneType' object is not iterable"
 
     def test_validate_all(self):
-        workflow = Workflow('name', Steps([Step('name', 'id')]),
+        workflow = Workflow('name', Steps([NormalStep('name', id='id')]),
                             Parameters([Parameter('name', 'value', 'from_context')]))
         try:
             workflow.validate_all()
@@ -356,7 +329,7 @@ class TestWorkflow:
             assert False
 
     def test_validate_all_error(self):
-        workflow = Workflow('incorrect-name!', Steps([Step('name', 'id'), ]),
+        workflow = Workflow('incorrect-name!', Steps([NormalStep('name', id='id')]),
                             Parameters([Parameter('name', 'value', 'from_context')]))
         try:
             workflow.validate_all()
@@ -368,11 +341,11 @@ class TestWorkflow:
 
 class TestWorkflows:
     def test(self):
-        workflows = Workflows([Workflow('name', Steps([Step('name', 'id')]))])
+        workflows = Workflows([Workflow('name', Steps([NormalStep('name', id='id')]))])
         assert len(workflows.elements) == 1
 
     def test_iter(self):
-        workflows = Workflows([Workflow('name', Steps([Step('name', 'id')]))])
+        workflows = Workflows([Workflow('name', Steps([NormalStep('name', id='id')]))])
         for workflow in workflows:
             assert workflow.name == 'name'
             assert len(workflow.steps.elements) == 1
@@ -380,11 +353,11 @@ class TestWorkflows:
             assert workflow.steps.elements[0].id == 'id'
 
     def test_getitem(self):
-        workflows = Workflows([Workflow('name', Steps([Step('name', 'id')]))])
+        workflows = Workflows([Workflow('name', Steps([NormalStep('name', id='id')]))])
         assert workflows['name'].name == 'name'
 
     def test_getitem_not_found(self):
-        workflows = Workflows([Workflow('name', Steps([Step('name', 'id')]))])
+        workflows = Workflows([Workflow('name', Steps([NormalStep('name', id='id')]))])
         assert workflows['missing'] is None
 
     def test_from_dict(self):
@@ -425,7 +398,7 @@ class TestWorkflows:
                 exception) == "Invalid workflows configuration: Invalid workflow configuration: Invalid steps configuration: 'NoneType' object is not iterable"
 
     def test_validate_all(self):
-        workflows = Workflows([Workflow('name', Steps([Step('name', 'id')]))])
+        workflows = Workflows([Workflow('name', Steps([NormalStep('name', id='id')]))])
         try:
             workflows.validate_all()
         except InvalidConfiguration:
@@ -443,7 +416,7 @@ class TestWorkflows:
 class TestConfiguration:
     def test(self):
         parameters = Parameters([Parameter('name', 'value', 'from_context')])
-        steps = Steps([Step('name', 'id', parameters=parameters)])
+        steps = Steps([NormalStep('name', id='id', parameters=parameters)])
         workflows = Workflows([Workflow('name', steps, parameters)])
         configuration = Configuration(workflows)
         assert configuration.workflows == workflows
@@ -516,7 +489,7 @@ class TestConfiguration:
         assert len(config.workflows.elements[0].steps.elements) == 0
 
     def test_validate_all(self):
-        workflows = Workflows([Workflow('name', Steps([Step('name', 'id')]))])
+        workflows = Workflows([Workflow('name', Steps([NormalStep('name', id='id')]))])
         configuration = Configuration(workflows)
         try:
             configuration.validate_all()
