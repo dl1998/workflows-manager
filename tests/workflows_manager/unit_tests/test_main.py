@@ -1,14 +1,13 @@
 import contextlib
 import io
 import logging
-from unittest.mock import patch, MagicMock
 from argparse import Namespace
+from unittest.mock import patch, MagicMock
+
 import pytest
 
 from workflows_manager import __version__
-from workflows_manager.dispatcher import InstanceParameter
-from workflows_manager.main import get_args, DEFAULT_STATUS_CODE, main, DEFAULT_ERROR_STATUS_CODE, \
-    EXCEPTION_TO_STATUS_CODE, main_cli
+from workflows_manager.main import DEFAULT_STATUS_CODE, main, main_cli
 
 
 class Test:
