@@ -17,7 +17,7 @@ from typing import Union, List, Dict, Any, Optional, Set, Type
 
 from workflows_manager import configuration
 from workflows_manager import workflow
-from workflows_manager.configuration import Workflow, Parameters, StepType
+from workflows_manager.configuration import Workflow, Parameters, StepType, StepUnion
 from workflows_manager.exceptions import MissingStep, MissingParameter, UnknownOption, InvalidConfiguration
 from workflows_manager.workflow import StepsInformation, StepStatus, StepInformation, StepPath, WorkflowContext
 
@@ -159,12 +159,12 @@ class Validator:
         self.workflow_name = workflow_name
         self.parameters = parameters
 
-    def __validate_workflow_step_parameters(self, step_configuration: configuration.Step, parameters: Set[str]):
+    def __validate_workflow_step_parameters(self, step_configuration: configuration.WorkflowStep, parameters: Set[str]):
         """
         A method to validate the parameters of a workflow step.
 
         :param step_configuration: The step configuration.
-        :type step_configuration: configuration.Step
+        :type step_configuration: configuration.WorkflowStep
         :param parameters: The parameters provided to the step from the parent.
         :type parameters: Set[str]
         """
@@ -173,12 +173,12 @@ class Validator:
         self.__validate_steps_parameters(self.workflows_configuration.workflows[step_configuration.workflow],
                                          parameters)
 
-    def __validate_parallel_step_parameters(self, step_configuration: configuration.Step, parameters: Set[str]):
+    def __validate_parallel_step_parameters(self, step_configuration: configuration.ParallelStep, parameters: Set[str]):
         """
         A method to validate the parameters of a parallel step.
 
         :param step_configuration: The step configuration.
-        :type step_configuration: configuration.Step
+        :type step_configuration: configuration.ParallelStep
         :param parameters: The parameters provided to the step from the parent.
         :type parameters: Set[str]
         """
@@ -248,13 +248,14 @@ class Validator:
         for step_configuration in workflow_configuration.steps:
             self.__validate_step_parameters(step_configuration, step_parameters)
 
-    def __collect_normal_steps(self, steps: configuration.Steps) -> List[configuration.Step]:
+    def __collect_normal_steps(self, steps: configuration.Steps) -> List[configuration.NormalStep]:
         """
         A method to collect the normal steps from the provided steps (including embedded into parallel steps).
 
         :param steps: The list of steps from which it will collect the normal steps.
         :type steps: configuration.Steps
         :return: The normal steps.
+        :rtype: List[configuration.NormalStep]
         """
         normal_steps = []
         for step in steps.elements:
@@ -330,7 +331,7 @@ class Runner:
         self.status_file = None
         self.parameters = parameters
 
-    def __initialize_step_information(self, statuses: StepsInformation, step: configuration.Step,
+    def __initialize_step_information(self, statuses: StepsInformation, step: StepUnion,
                                       previous_step: Optional[StepInformation] = None,
                                       parent: Optional[StepInformation] = None) -> StepInformation:
         """
@@ -339,7 +340,7 @@ class Runner:
         :param statuses: The statuses of the steps.
         :type statuses: StepsInformation
         :param step: The step configuration.
-        :type step: configuration.Step
+        :type step: StepUnion
         :param previous_step: The previous step in the workflow.
         :type previous_step: Optional[StepInformation]
         :param parent: The parent step in the workflow.
@@ -364,7 +365,7 @@ class Runner:
             parent.children.append(step_status)
         return step_status
 
-    def __initialize_steps_information(self, statuses: StepsInformation, steps: List[configuration.Step],
+    def __initialize_steps_information(self, statuses: StepsInformation, steps: List[StepUnion],
                                        previous_step: Optional[StepInformation] = None,
                                        parent: Optional[StepInformation] = None):
         """
@@ -373,7 +374,7 @@ class Runner:
         :param statuses: The statuses of the steps.
         :type statuses: StepsInformation
         :param steps: The steps' configuration.
-        :type steps: List[configuration.Step]
+        :type steps: List[StepUnion]
         :param previous_step: The previous step in the workflow.
         :type previous_step: Optional[StepInformation]
         :param parent: The parent step in the workflow.
@@ -451,12 +452,13 @@ class Runner:
                 evaluated_parameters[parameter.name] = parameter.value
         return evaluated_parameters
 
-    def __run_normal_step(self, step: configuration.Step, step_status: StepInformation, parameters: Dict[str, Any]):
+    def __run_normal_step(self, step: configuration.NormalStep, step_status: StepInformation,
+                          parameters: Dict[str, Any]):
         """
         A method to run a normal step.
 
         :param step: The step configuration.
-        :type step: configuration.Step
+        :type step: configuration.NormalStep
         :param step_status: The status of the step.
         :type step_status: StepInformation
         :param parameters: The parameters provided to the step.
@@ -481,12 +483,13 @@ class Runner:
             if step.capture_stderr:
                 step_status.stderr = captured_stderr.getvalue()
 
-    def __run_workflow_step(self, step: configuration.Step, step_status: StepInformation, parameters: Dict[str, Any]):
+    def __run_workflow_step(self, step: configuration.WorkflowStep, step_status: StepInformation,
+                            parameters: Dict[str, Any]):
         """
         A method to run a workflow step.
 
         :param step: The step configuration.
-        :type step: configuration.Step
+        :type step: configuration.WorkflowStep
         :param step_status: The status of the step.
         :type step_status: StepInformation
         :param parameters: The parameters provided to the step.
@@ -495,12 +498,13 @@ class Runner:
         self.logger.info(f"Running workflow: {step.workflow}")
         self.__run_steps(self.workflows_configuration.workflows[step.workflow], parameters, step_status.path)
 
-    def __run_parallel_steps(self, step: configuration.Step, step_status: StepInformation, parameters: Dict[str, Any]):
+    def __run_parallel_steps(self, step: configuration.ParallelStep, step_status: StepInformation,
+                             parameters: Dict[str, Any]):
         """
         A method to run parallel steps.
 
         :param step: The step configuration.
-        :type step: configuration.Step
+        :type step: configuration.ParallelStep
         :param step_status: The status of the step.
         :type step_status: StepInformation
         :param parameters: The parameters provided to the step.
@@ -518,12 +522,12 @@ class Runner:
             if thread.exception:
                 raise thread.exception
 
-    def __run_step(self, step: configuration.Step, parent_step_path: Optional[StepPath], parameters: Dict[str, Any]):
+    def __run_step(self, step: StepUnion, parent_step_path: Optional[StepPath], parameters: Dict[str, Any]):
         """
         A method to run a step.
 
         :param step: The step configuration.
-        :type step: configuration.Step
+        :type step: StepUnion
         :param parent_step_path: The path to the parent step.
         :type parent_step_path: Optional[StepPath]
         :param parameters: The parameters provided to the step.
