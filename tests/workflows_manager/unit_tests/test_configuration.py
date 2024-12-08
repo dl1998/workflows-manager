@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Type
 from unittest.mock import patch, mock_open
 
 import pytest
@@ -213,45 +214,24 @@ class TestStep:
         assert step.parameters == Parameters()
         assert step.stop_on_error is True
 
-    @pytest.mark.parametrize('step_type', [
-        StepType.NORMAL,
-        StepType.WORKFLOW,
-        StepType.PARALLEL
+    @pytest.mark.parametrize('step_dict, expected_type', [
+        [{'type': 'normal'}, NormalStep],
+        [{'type': 'workflow'}, WorkflowStep],
+        [{'type': 'parallel'}, ParallelStep],
+        [{'name': 'name', 'step': 'id'}, NormalStep],
+        [{'name': 'name', 'workflow': 'workflow'}, WorkflowStep],
+        [{'name': 'name', 'parallels': []}, ParallelStep]
     ], ids=[
-        'normal step',
-        'workflow step',
-        'parallel step'
+        'with type normal step',
+        'with type workflow step',
+        'with type parallel step',
+        'without type normal step',
+        'without type workflow step',
+        'without type parallel step'
     ])
-    def test_from_dict(self, step_type: StepType):
-        elements = {
-            'name': 'name',
-            'step': 'id',
-            'parameters': [
-                {'name': 'name', 'value': 'value', 'from_context': 'from_context'}
-            ],
-            'type': step_type.value,
-            'capture_stderr': True,
-            'capture_stdout': True,
-            'stop_on_error': False,
-            'workflow': 'workflow',
-            'parallels': []
-        }
-
-        step = Step.from_dict(elements)
-
-        assert step.name == elements['name']
-        assert step.parameters.elements[0].name == elements['parameters'][0]['name']
-        assert step.parameters.elements[0].value == elements['parameters'][0]['value']
-        assert step.parameters.elements[0].from_context == elements['parameters'][0]['from_context']
-        assert step.stop_on_error is False
-        if step_type == StepType.NORMAL:
-            assert step.id == elements['step']
-            assert step.capture_stderr is True
-            assert step.capture_stdout is True
-        elif step_type == StepType.WORKFLOW:
-            assert step.workflow == elements['workflow']
-        elif step_type == StepType.PARALLEL:
-            assert step.parallels == Steps()
+    def test_from_dict(self, step_dict: dict, expected_type: Type):
+        step = Step.from_dict(step_dict)
+        assert isinstance(step, expected_type)
 
     def test_from_dict_error(self):
         try:
@@ -267,6 +247,193 @@ class TestStep:
             step.validate_all()
         except InvalidConfiguration:
             assert False
+
+
+class TestNormalStep:
+    @pytest.mark.parametrize('name, expected_name', [
+        ['name', 'name'],
+        [None, 'id'],
+        ['', 'id']
+    ], ids=[
+        'with name',
+        'None name',
+        'empty name'
+    ])
+    def test(self, name: str, expected_name: str):
+        parameters = Parameters([Parameter('name', 'value', 'from_context')])
+        step = NormalStep(name, id='id', parameters=parameters, capture_stdout=True, capture_stderr=True)
+        assert step.name == expected_name
+        assert step.id == 'id'
+        assert step.parameters == parameters
+        assert step.capture_stdout is True
+        assert step.capture_stderr is True
+
+    def test_default(self):
+        step = NormalStep('name')
+        assert step.name == 'name'
+        assert step.id is None
+        assert step.parameters == Parameters()
+        assert step.capture_stdout is False
+        assert step.capture_stderr is False
+
+    def test_from_dict(self):
+        elements = {
+            'name': 'name',
+            'step': 'id',
+            'parameters': [
+                {'name': 'name', 'value': 'value', 'from_context': 'from_context'}
+            ],
+            'capture_stdout': True,
+            'capture_stderr': True
+        }
+        step = NormalStep.from_dict(elements)
+        assert step.name == elements['name']
+        assert step.id == elements['step']
+        assert step.parameters.elements[0].name == elements['parameters'][0]['name']
+        assert step.parameters.elements[0].value == elements['parameters'][0]['value']
+        assert step.parameters.elements[0].from_context == elements['parameters'][0]['from_context']
+        assert step.capture_stdout is True
+        assert step.capture_stderr is True
+
+    def test_from_dict_error(self):
+        try:
+            NormalStep.from_dict(None)
+            assert False
+        except InvalidConfiguration as exception:
+            assert str(
+                exception) == "Invalid step configuration: 'NoneType' object has no attribute 'get'"
+
+    def test_validate_all(self):
+        step = NormalStep('name', id='id')
+        try:
+            step.validate_all()
+        except InvalidConfiguration:
+            assert False
+
+    def test_validate_all_error(self):
+        step = NormalStep('name')
+        try:
+            step.validate_all()
+            assert False
+        except InvalidConfiguration as exception:
+            assert str(
+                exception) == "Step ID cannot be empty."
+
+
+class TestWorkflowStep:
+    def test(self):
+        parameters = Parameters([Parameter('name', 'value', 'from_context')])
+        step = WorkflowStep('name', workflow='workflow', parameters=parameters)
+        assert step.name == 'name'
+        assert step.workflow == 'workflow'
+        assert step.parameters == parameters
+
+    def test_default(self):
+        step = WorkflowStep('name')
+        assert step.name == 'name'
+        assert step.workflow is None
+        assert step.parameters == Parameters()
+
+    def test_from_dict(self):
+        elements = {
+            'name': 'name',
+            'workflow': 'workflow',
+            'parameters': [
+                {'name': 'name', 'value': 'value', 'from_context': 'from_context'}
+            ]
+        }
+        step = WorkflowStep.from_dict(elements)
+        assert step.name == elements['name']
+        assert step.workflow == elements['workflow']
+        assert step.parameters.elements[0].name == elements['parameters'][0]['name']
+        assert step.parameters.elements[0].value == elements['parameters'][0]['value']
+        assert step.parameters.elements[0].from_context == elements['parameters'][0]['from_context']
+
+    def test_from_dict_error(self):
+        try:
+            WorkflowStep.from_dict(None)
+            assert False
+        except InvalidConfiguration as exception:
+            assert str(
+                exception) == "Invalid step configuration: 'NoneType' object has no attribute 'get'"
+
+    def test_validate_all(self):
+        step = WorkflowStep('name', workflow='workflow')
+        try:
+            step.validate_all()
+        except InvalidConfiguration:
+            assert False
+
+    def test_validate_all_error(self):
+        step = WorkflowStep('name')
+        try:
+            step.validate_all()
+            assert False
+        except InvalidConfiguration as exception:
+            assert str(
+                exception) == "Workflow name cannot be empty."
+
+
+class TestParallelStep:
+    def test(self):
+        steps = Steps([NormalStep('name', id='id')])
+        step = ParallelStep('name', parallels=steps)
+        assert step.name == 'name'
+        assert step.parallels == steps
+
+    def test_default(self):
+        step = ParallelStep('name')
+        assert step.name == 'name'
+        assert step.parallels == Steps()
+
+    def test_from_dict(self):
+        elements = {
+            'name': 'name',
+            'parallels': [
+                {
+                    'name': 'name',
+                    'step': 'id',
+                    'parameters': [
+                        {'name': 'name', 'value': 'value', 'from_context': 'from_context'}
+                    ]
+                }
+            ]
+        }
+        step = ParallelStep.from_dict(elements)
+        assert step.name == elements['name']
+        assert len(step.parallels.elements) == 1
+        assert step.parallels.elements[0].name == elements['parallels'][0]['name']
+        assert step.parallels.elements[0].id == elements['parallels'][0]['step']
+        assert step.parallels.elements[0].parameters.elements[0].name == elements['parallels'][0]['parameters'][0][
+            'name']
+        assert step.parallels.elements[0].parameters.elements[0].value == elements['parallels'][0]['parameters'][0][
+            'value']
+        assert step.parallels.elements[0].parameters.elements[0].from_context == elements['parallels'][0]['parameters'][
+            0]['from_context']
+
+    def test_from_dict_error(self):
+        try:
+            ParallelStep.from_dict(None)
+            assert False
+        except InvalidConfiguration as exception:
+            assert str(
+                exception) == "Invalid step configuration: 'NoneType' object has no attribute 'get'"
+
+    def test_validate_all(self):
+        step = ParallelStep('name', parallels=Steps([NormalStep('name', id='id')]))
+        try:
+            step.validate_all()
+        except InvalidConfiguration:
+            assert False
+
+    def test_validate_all_error(self):
+        step = ParallelStep('name')
+        try:
+            step.validate_all()
+            assert False
+        except InvalidConfiguration as exception:
+            assert str(
+                exception) == "Steps list cannot be empty."
 
 
 class TestWorkflow:
