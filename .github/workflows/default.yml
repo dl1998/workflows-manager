@@ -62,10 +62,10 @@ jobs:
           pytest tests/workflows_manager/unit_tests \
             --junitxml=$(pwd)/reports/junit.unit.${{ matrix.python-version }}.xml
       - name: Upload Unit Test Reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           include-hidden-files: true
-          name: unit-test-reports
+          name: unit-test-reports-${{ matrix.python-version }}
           path: reports
 
   acceptance-tests:
@@ -95,10 +95,10 @@ jobs:
             --junit --junit-directory=$(pwd)/temp_reports
           hatch env run -e test -i py=${{ matrix.python-version }} -- junitparser merge $(pwd)/temp_reports/*.xml $(pwd)/reports/junit.acceptance.${{ matrix.python-version }}.xml
       - name: Upload Acceptance Test Reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           include-hidden-files: true
-          name: acceptance-test-reports
+          name: acceptance-test-reports-${{ matrix.python-version }}
           path: reports
 
   combine-reports:
@@ -112,14 +112,16 @@ jobs:
         run: |
           python3 -m pip install hatch
       - name: Download Unit Test Reports
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: unit-test-reports
+          pattern: unit-test-reports-*
+          merge-multiple: true
           path: ./reports/unit
       - name: Download Acceptance Test Reports
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
-          name: acceptance-test-reports
+          pattern: acceptance-test-reports-*
+          merge-multiple: true
           path: ./reports/acceptance
       - name: Combine JUnit Reports
         run: |
@@ -129,7 +131,7 @@ jobs:
           hatch run +py=3.13 test:coverage combine ./reports/unit/.coverage.* ./reports/acceptance/.coverage.*
           hatch run +py=3.13 test:coverage xml -o ./reports/combined-coverage.xml
       - name: Upload Combined Reports
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           include-hidden-files: true
           name: combined-reports
@@ -145,7 +147,7 @@ jobs:
     if: github.event_name == 'pull_request'
     steps:
       - name: Download Combined Coverage
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: combined-reports
           path: .
@@ -166,7 +168,7 @@ jobs:
     needs: combine-reports
     steps:
       - name: Download Combined Reports
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: combined-reports
           path: ./reports
@@ -190,7 +192,7 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v2
       - name: Download Combined Coverage
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: combined-reports
           path: .
