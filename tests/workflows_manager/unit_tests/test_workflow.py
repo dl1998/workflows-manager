@@ -4,7 +4,8 @@ from typing import Optional, List, Dict, Callable, Tuple
 import pytest
 
 from workflows_manager.configuration import StepType
-from workflows_manager.workflow import StepPath, StepInformation, StepStatus, StepsInformation, WorkflowContext, Step, Steps
+from workflows_manager.workflow import StepPath, StepInformation, StepStatus, StepsInformation, WorkflowContext, Step, \
+    Steps
 
 
 @pytest.fixture
@@ -198,12 +199,12 @@ class TestWorkflowContext:
         assert workflow_context.get('a') == 2
 
     def test_context_get_step_information(self, steps_information: StepsInformation,
-                                                   workflow_context: WorkflowContext):
+                                          workflow_context: WorkflowContext):
         step_path = StepPath(None, StepType.WORKFLOW, 'workflow_step')
         assert workflow_context.get_step_information(step_path) == steps_information.steps[step_path]
 
     def test_context_steps_information(self, steps_information: StepsInformation,
-                                                workflow_context: WorkflowContext):
+                                       workflow_context: WorkflowContext):
         assert workflow_context.steps_information == steps_information
 
     def test_context_global_lock(self):
