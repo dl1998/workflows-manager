@@ -4,27 +4,16 @@ import os
 import sys
 from pathlib import Path
 from typing import Dict, Optional
-from unittest.mock import mock_open, patch, MagicMock
+from unittest.mock import patch, MagicMock
 
 import pytest
 
 from workflows_manager import configuration, workflow, dispatcher
-from workflows_manager.configuration import Parameters
 from workflows_manager.dispatcher import DispatcherAction, WorkflowDispatcher, WorkflowDispatcherBuilder, \
-    ConfigurationFormat, InstanceParameters, InstanceParameter
+    ConfigurationFormat
 from workflows_manager.exceptions import UnknownOption, InvalidConfiguration
+from actions.conftest import WORKFLOW_NAME, PARAMETERS, test_configuration
 from workflows_manager.workflow import steps
-
-TEST_LOGGER_NAME = 'noop_logger'
-WORKFLOW_NAME = 'workflow'
-PARAMETERS = {
-    'key': 'value'
-}
-
-
-def setup_module(_):
-    logger = logging.getLogger(TEST_LOGGER_NAME)
-    logger.addHandler(logging.NullHandler())
 
 
 @steps.register(name='new-step')
@@ -38,59 +27,6 @@ class NewStep(workflow.Step):
         if optional and isinstance(optional, str):
             self.workflow_context.set('error', optional)
         return integer
-
-
-class TestInstanceParameter:
-    def test(self):
-        parameter = dispatcher.InstanceParameter(name='name', value='value', type=str)
-        assert parameter.name == 'name'
-        assert parameter.value == 'value'
-        assert parameter.type == str
-
-
-class TestInstanceParameters:
-    def test(self):
-        parameter = InstanceParameter(name='name', value='value', type=str)
-        parameters = InstanceParameters([
-            parameter,
-        ])
-        assert len(parameters.parameters) == 1
-        assert parameters.parameters[0] == parameter
-
-    def test_from_step(self):
-        step = steps.steps_register['new-step']
-        parameters = InstanceParameters.from_step(step)
-        expected_parameters = InstanceParameters()
-        expected_parameters.parameters.append(InstanceParameter('string', inspect.Parameter.empty, str))
-        expected_parameters.parameters.append(InstanceParameter('boolean', inspect.Parameter.empty, bool))
-        expected_parameters.parameters.append(InstanceParameter('integer', inspect.Parameter.empty, int))
-        expected_parameters.parameters.append(InstanceParameter('key', inspect.Parameter.empty, str))
-        expected_parameters.parameters.append(InstanceParameter('optional', None, inspect.Parameter.empty))
-        assert parameters == expected_parameters
-
-    def test_iter(self):
-        parameter = InstanceParameter(name='name', value='value', type=str)
-        parameters = InstanceParameters([
-            parameter,
-        ])
-        for index, parameter in enumerate(parameters):
-            assert parameter == parameters[index]
-
-    def test_getitem(self):
-        parameter = InstanceParameter(name='name', value='value', type=str)
-        parameters = InstanceParameters([
-            parameter,
-        ])
-        assert parameters[0] == parameter
-        assert parameters[parameter.name] == parameter
-
-    def test_delitem(self):
-        parameter = InstanceParameter(name='name', value='value', type=str)
-        parameters = InstanceParameters([
-            parameter,
-        ])
-        del parameters['name']
-        assert len(parameters.parameters) == 0
 
 
 class TestDispatcherAction:
@@ -107,277 +43,6 @@ class TestDispatcherAction:
     def test_from_str_error(self):
         with pytest.raises(UnknownOption):
             DispatcherAction.from_str('')
-
-
-@pytest.fixture
-def test_configuration():
-    return configuration.Configuration.from_dict({
-        'workflows': {
-            'test-workflow': {
-                'steps': [
-                    {
-                        'name': 'Parallel Step',
-                        'type': 'parallel',
-                        'parallels': [
-                            {
-                                'name': 'Normal Step',
-                                'step': 'new-step',
-                                'parameters': [
-                                    {
-                                        'name': 'string',
-                                        'value': 'test'
-                                    },
-                                    {
-                                        'name': 'boolean',
-                                        'value': True
-                                    },
-                                    {
-                                        'name': 'integer',
-                                        'value': 1
-                                    }
-                                ],
-                                'capture_stdout': True,
-                                'capture_stderr': True,
-                            }
-                        ]
-                    }
-                ]
-            },
-            WORKFLOW_NAME: {
-                'steps': [
-                    {
-                        'name': 'Workflow Step',
-                        'type': 'workflow',
-                        'workflow': 'test-workflow',
-                        'parameters': [
-                            {
-                                'name': 'optional',
-                                'value': 'error message'
-                            }
-                        ],
-                    },
-                    {
-                        'name': 'Another Workflow Step',
-                        'type': 'workflow',
-                        'workflow': 'test-workflow',
-                        'stop_on_error': False,
-                        'parameters': [
-                            {
-                                'name': 'optional',
-                                'from_context': 'error'
-                            }
-                        ]
-                    }
-                ]
-            }
-        }
-    })
-
-
-@pytest.fixture
-def test_expected_status() -> Dict:
-    return {
-        'steps': [
-            {
-                'children': [
-                    {
-                        'children': [
-                            {
-                                'children': None,
-                                'error': None,
-                                'name': 'Normal Step',
-                                'parameters': {
-                                    'boolean': True,
-                                    'integer': 1,
-                                    'key': 'value',
-                                    'optional': 'error message',
-                                    'string': 'test'
-                                },
-                                'return_value': 1,
-                                'status': 'success',
-                                'stderr': 'True\n',
-                                'stdout': 'test\n',
-                                'type': 'normal'
-                            }
-                        ],
-                        'error': None,
-                        'name': 'Parallel Step',
-                        'parameters': None,
-                        'return_value': None,
-                        'status': 'success',
-                        'stderr': None,
-                        'stdout': None,
-                        'type': 'parallel'
-                    }
-                ],
-                'error': None,
-                'name': 'Workflow Step',
-                'parameters': None,
-                'return_value': None,
-                'status': 'success',
-                'stderr': None,
-                'stdout': None,
-                'type': 'workflow'
-            },
-            {
-                'children': [
-                    {
-                        'children': [
-                            {
-                                'children': None,
-                                'error': 'error message',
-                                'name': 'Normal Step',
-                                'parameters': {
-                                    'boolean': True,
-                                    'integer': 1,
-                                    'key': 'value',
-                                    'optional': 'error message',
-                                    'string': 'test'
-                                },
-                                'return_value': None,
-                                'status': 'failed',
-                                'stderr': 'True\n',
-                                'stdout': 'test\n',
-                                'type': 'normal'
-                            }
-                        ],
-                        'error': 'error message',
-                        'name': 'Parallel Step',
-                        'parameters': None,
-                        'return_value': None,
-                        'status': 'failed',
-                        'stderr': None,
-                        'stdout': None,
-                        'type': 'parallel'
-                    }
-                ],
-                'error': 'error message',
-                'name': 'Another Workflow Step',
-                'parameters': None,
-                'return_value': None,
-                'status': 'failed',
-                'stderr': None,
-                'stdout': None,
-                'type': 'workflow',
-            }
-        ]
-    }
-
-
-class TestValidator:
-    def test(self, test_configuration: configuration.Configuration):
-        logger = logging.getLogger(TEST_LOGGER_NAME)
-        validator = dispatcher.Validator(logger, test_configuration, WORKFLOW_NAME, PARAMETERS)
-        assert validator.logger == logger
-        assert validator.workflows_configuration == test_configuration
-        assert validator.workflow_name == WORKFLOW_NAME
-        assert validator.parameters == PARAMETERS
-
-    def test_validate(self, test_configuration: configuration.Configuration):
-        logger = logging.getLogger(TEST_LOGGER_NAME)
-        validator = dispatcher.Validator(logger, test_configuration, WORKFLOW_NAME, PARAMETERS)
-        assert validator.validate() == True
-
-    def test_validate_error_registered_steps(self, test_configuration: configuration.Configuration):
-        logger = logging.getLogger(TEST_LOGGER_NAME)
-        test_configuration.workflows[0].steps[0].parallels[0].id = 'missing-step'
-        validator = dispatcher.Validator(logger, test_configuration, WORKFLOW_NAME, PARAMETERS)
-        assert validator.validate() == False
-
-    def test_validate_error_missing_parameter(self, test_configuration: configuration.Configuration):
-        logger = logging.getLogger(TEST_LOGGER_NAME)
-        test_configuration.workflows[0].steps[0].parallels[0].parameters[0].name = 'unknown-parameter'
-        test_configuration.workflows[WORKFLOW_NAME].steps[0].parameters = Parameters([])
-        validator = dispatcher.Validator(logger, test_configuration, WORKFLOW_NAME, PARAMETERS)
-        assert validator.validate() == False
-
-
-class TestRunner:
-    def test(self, test_configuration: configuration.Configuration):
-        path = Path('test.json')
-        logger = logging.getLogger(TEST_LOGGER_NAME)
-        runner = dispatcher.Runner(logger, test_configuration, WORKFLOW_NAME, PARAMETERS)
-        runner.status_file = path
-        assert runner.logger == logger
-        assert runner.workflows_configuration == test_configuration
-        assert runner.workflow_name == WORKFLOW_NAME
-        assert runner.status_file == path
-        assert runner.parameters == PARAMETERS
-
-    @patch('json.dump')
-    @patch('pathlib.Path.open', new_callable=mock_open)
-    def test_run(self, mock_file_open, mock_dump, test_configuration: configuration.Configuration,
-                 test_expected_status: Dict):
-        path = Path('test.json')
-        logger = logging.getLogger(TEST_LOGGER_NAME)
-        runner = dispatcher.Runner(logger, test_configuration, WORKFLOW_NAME, PARAMETERS)
-        runner.status_file = path
-        runner.run()
-        assert mock_dump.call_args[0][0] == test_expected_status
-        assert mock_dump.call_args[0][1] == mock_file_open()
-
-    @patch('json.dump')
-    @patch('pathlib.Path.open', new_callable=mock_open)
-    def test_run_error_missing_parameters(self, mock_file_open, mock_dump,
-                                          test_configuration: configuration.Configuration,
-                                          test_expected_status: Dict):
-        test_configuration.workflows['test-workflow'].steps[0].parallels[0].parameters = \
-            test_configuration.workflows['test-workflow'].steps[0].parallels[0].parameters[:2]
-        test_configuration.workflows[WORKFLOW_NAME].steps[0].parameters = Parameters([])
-        expected_error = 'Missing the following required parameters: [\'integer\']'
-        expected_status = 'failed'
-        expected_step = {
-            'children': None,
-            'error': expected_error,
-            'name': 'Normal Step',
-            'parameters': None,
-            'return_value': None,
-            'status': expected_status,
-            'stderr': None,
-            'stdout': None,
-            'type': 'normal'
-        }
-        test_expected_status['steps'][0]['children'][0]['children'][0] = expected_step
-        test_expected_status['steps'][0]['children'][0]['error'] = expected_error
-        test_expected_status['steps'][0]['children'][0]['status'] = expected_status
-        test_expected_status['steps'][0]['error'] = expected_error
-        test_expected_status['steps'][0]['status'] = expected_status
-        test_expected_status['steps'][1]['children'][0]['children'][0]['error'] = None
-        test_expected_status['steps'][1]['children'][0]['children'][0]['parameters'] = None
-        test_expected_status['steps'][1]['children'][0]['children'][0]['status'] = 'not_started'
-        test_expected_status['steps'][1]['children'][0]['children'][0]['stderr'] = None
-        test_expected_status['steps'][1]['children'][0]['children'][0]['stdout'] = None
-        test_expected_status['steps'][1]['children'][0]['error'] = None
-        test_expected_status['steps'][1]['children'][0]['status'] = 'not_started'
-        test_expected_status['steps'][1]['error'] = None
-        test_expected_status['steps'][1]['status'] = 'not_started'
-        path = Path('test.json')
-        logger = logging.getLogger(TEST_LOGGER_NAME)
-        runner = dispatcher.Runner(logger, test_configuration, WORKFLOW_NAME, PARAMETERS)
-        runner.status_file = path
-        runner.run()
-        assert mock_dump.call_args[0][0] == test_expected_status
-        assert mock_dump.call_args[0][1] == mock_file_open()
-
-    @patch('json.dump')
-    @patch('pathlib.Path.open', new_callable=mock_open)
-    def test_run_error_workflow_fail(self, mock_file_open, mock_dump,
-                                     test_configuration: configuration.Configuration,
-                                     test_expected_status: Dict):
-        test_configuration.workflows[WORKFLOW_NAME].steps[1].stop_on_error = True
-        test_expected_status['steps'][1]['status'] = 'failed'
-        test_expected_status['steps'][1]['error'] = 'error message'
-        test_expected_status['steps'][1]['children'][0]['status'] = 'failed'
-        test_expected_status['steps'][1]['children'][0]['error'] = 'error message'
-        test_expected_status['steps'][1]['children'][0]['children'][0]['status'] = 'failed'
-        test_expected_status['steps'][1]['children'][0]['children'][0]['error'] = 'error message'
-        path = Path('test.json')
-        logger = logging.getLogger(TEST_LOGGER_NAME)
-        runner = dispatcher.Runner(logger, test_configuration, WORKFLOW_NAME, PARAMETERS)
-        runner.status_file = path
-        runner.run()
-        assert mock_dump.call_args[0][0] == test_expected_status
-        assert mock_dump.call_args[0][1] == mock_file_open()
 
 
 class TestWorkflowDispatcher:
@@ -434,18 +99,34 @@ class TestWorkflowDispatcher:
                 mock_runner.assert_not_called()
                 mock_run.assert_not_called()
 
+    @patch('workflows_manager.dispatcher.ListWorkflows')
+    def test_list(self, mock_list, test_configuration: configuration.Configuration):
+        root_logger = logging.getLogger('workflows-manager')
+        workflow_dispatcher = WorkflowDispatcher()
+        workflow_dispatcher.logger = root_logger
+        workflow_dispatcher.configuration = test_configuration
+        workflow_dispatcher.workflow_name = WORKFLOW_NAME
+        workflow_dispatcher.status_file = Path('test.json')
+        workflow_dispatcher.imports = []
+        workflow_dispatcher.list()
+        mock_list.assert_called_once_with(root_logger.getChild('list'), test_configuration)
+        mock_list.return_value.list.assert_called_once()
+
     @pytest.mark.parametrize('action', [
         DispatcherAction.VALIDATE,
         DispatcherAction.RUN,
+        DispatcherAction.LIST,
         None,
     ], ids=[
         'validate action',
         'run action',
+        'list action',
         'unknown action',
     ])
+    @patch.object(dispatcher.WorkflowDispatcher, 'list')
     @patch.object(dispatcher.WorkflowDispatcher, 'run')
     @patch.object(dispatcher.WorkflowDispatcher, 'validate')
-    def test_dispatch(self, mock_validator: MagicMock, mock_runner: MagicMock,
+    def test_dispatch(self, mock_validator: MagicMock, mock_runner: MagicMock, mock_list: MagicMock,
                       test_configuration: configuration.Configuration,
                       action: DispatcherAction):
         root_logger = logging.getLogger('workflows-manager')
@@ -471,15 +152,22 @@ class TestWorkflowDispatcher:
                 'importlib.import_module'), patch.object(Path, 'relative_to') as mock_path_relative_to:
             mock_path_relative_to.return_value = 'packages/file.py'
             workflow_dispatcher.dispatch(action)
-        if action == DispatcherAction.VALIDATE:
+        if action == DispatcherAction.LIST:
+            mock_list.assert_called_once()
+            mock_validator.assert_not_called()
+            mock_runner.assert_not_called()
+        elif action == DispatcherAction.VALIDATE:
             mock_validator.assert_called_once()
             mock_runner.assert_not_called()
+            mock_list.assert_not_called()
         elif action == DispatcherAction.RUN:
             mock_validator.assert_not_called()
             mock_runner.assert_called_once()
+            mock_list.assert_not_called()
         else:
             mock_validator.assert_not_called()
             mock_runner.assert_not_called()
+            mock_list.assert_not_called()
 
 
 def create_path_with_default_cwd(default_path: Path, original_new):

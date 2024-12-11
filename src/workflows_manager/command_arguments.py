@@ -20,7 +20,7 @@ def __create_configuration_group(parser: ArgumentParser):
     configuration_group = parser.add_argument_group('Configuration', 'Configuration of the workflows manager.')
     configuration_group.add_argument('--imports', '-i', action='append', help='List of paths to the workflows modules.')
     configuration_group.add_argument('--configuration-file', '-c', type=str, required=False,
-                                     help='Path to the configuration file with workflows and steps.  If not provided, '
+                                     help='Path to the configuration file with workflows and steps. If not provided, '
                                           'then it will try to search for workflows.yaml or workflows.json in the '
                                           'current working directory.')
     configuration_group.add_argument('--disable-error-codes', action='store_true',
@@ -115,6 +115,21 @@ def __configure_validate_action_subparser(parser):
     __create_parameters_group(validate_subparser)
 
 
+def __configure_list_action_subparser(parser):
+    """
+    Configure the subparser for the list action.
+
+    :param parser: Parser to which the subparser will be added.
+    """
+    list_subparser = parser.add_parser('list', help='List the workflows.', formatter_class=RawTextHelpFormatter)
+    configuration_group = list_subparser.add_argument_group('Configuration', 'Configuration of the workflows manager.')
+    configuration_group.add_argument('--configuration-file', '-c', type=str, required=False,
+                                     help='Path to the configuration file with workflows and steps. If not provided, '
+                                          'then it will try to search for workflows.yaml or workflows.json in the '
+                                          'current working directory.')
+    __create_logging_group(list_subparser)
+
+
 def __configure_version_action_subparser(parser):
     """
     Configure the subparser for the version action.
@@ -134,6 +149,7 @@ def __configure_action_subparsers(parser):
     action_subparsers.required = True
     __configure_run_action_subparser(action_subparsers)
     __configure_validate_action_subparser(action_subparsers)
+    __configure_list_action_subparser(action_subparsers)
     __configure_version_action_subparser(action_subparsers)
 
 
@@ -211,11 +227,11 @@ def get_parameters(namespace: Namespace) -> Dict[str, Any]:
     :rtype: Dict[str, Any]
     """
     parameters = {}
-    __add_parameters(namespace.parameter, parameters)
-    __add_parameters(namespace.string_parameter, parameters, types_mapping['str'])
-    __add_parameters(namespace.integer_parameter, parameters, types_mapping['int'])
-    __add_parameters(namespace.boolean_parameter, parameters, types_mapping['bool'])
-    __add_parameters(namespace.float_parameter, parameters, types_mapping['float'])
-    __add_parameters(namespace.list_parameter, parameters, types_mapping['list'])
-    __add_parameters(namespace.dict_parameter, parameters, types_mapping['dict'])
+    __add_parameters(getattr(namespace, 'parameter', None), parameters)
+    __add_parameters(getattr(namespace, 'string_parameter', None), parameters, types_mapping['str'])
+    __add_parameters(getattr(namespace, 'integer_parameter', None), parameters, types_mapping['int'])
+    __add_parameters(getattr(namespace, 'boolean_parameter', None), parameters, types_mapping['bool'])
+    __add_parameters(getattr(namespace, 'float_parameter', None), parameters, types_mapping['float'])
+    __add_parameters(getattr(namespace, 'list_parameter', None), parameters, types_mapping['list'])
+    __add_parameters(getattr(namespace, 'dict_parameter', None), parameters, types_mapping['dict'])
     return parameters

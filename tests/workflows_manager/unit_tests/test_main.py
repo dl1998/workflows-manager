@@ -1,14 +1,13 @@
 import contextlib
 import io
 import logging
-from unittest.mock import patch, MagicMock
 from argparse import Namespace
+from unittest.mock import patch, MagicMock
+
 import pytest
 
 from workflows_manager import __version__
-from workflows_manager.dispatcher import InstanceParameter
-from workflows_manager.main import get_args, DEFAULT_STATUS_CODE, main, DEFAULT_ERROR_STATUS_CODE, \
-    EXCEPTION_TO_STATUS_CODE, main_cli
+from workflows_manager.main import DEFAULT_STATUS_CODE, main, main_cli
 
 
 class Test:
@@ -93,7 +92,7 @@ class Test:
         mock_get_logger.return_value = mock_logger
         mock_dispatcher = MagicMock()
         mock_dispatcher.dispatch.side_effect = ValueError("Test error")
-        mock_dispatcher_builder.return_value.logger.return_value.disable_current_path_import.return_value.imports.return_value.configuration_file.return_value.workflow_name.return_value.status_file.return_value.build.return_value = mock_dispatcher
+        mock_dispatcher_builder.return_value.logger.return_value.disable_current_path_import.return_value.imports.return_value.configuration_file.return_value.workflow_name.return_value.status_file.return_value.parameters.return_value.build.return_value = mock_dispatcher
 
         arguments = Namespace(
             log_level=logging_level,

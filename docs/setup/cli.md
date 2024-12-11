@@ -4,9 +4,9 @@ workflows-manager [OPTIONS...] <action> [ACTION OPTIONS...]
 
 ## Main Parser
 
-| Argument                         | Default | Required |             Choices              | Description                         |
-|----------------------------------|:-------:|:--------:|:--------------------------------:|-------------------------------------|
-| `action`                         |         |  `true`  | `version` \| `validate` \| `run` | Subcommands for managing workflows. |
+| Argument                         | Default | Required |                  Choices                   | Description                         |
+|----------------------------------|:-------:|:--------:|:------------------------------------------:|-------------------------------------|
+| `action`                         |         |  `true`  | `version` \| `validate` \| `run` \| `list` | Subcommands for managing workflows. |
 
 ## Subparser: `action`
 
@@ -60,3 +60,11 @@ This parser runs the workflow.
 | `--list-parameter` \| `-lp`      |         | `false`  |                                                         | List parameter for the workflow (delimiter: `,`). Format: `<name>:<value>`.                                                                                                                                                                                                      |
 | `--dict-parameter` \| `-dp`      |         | `false`  |                                                         | Dictionary parameter for the workflow (JSON format). Format: `<name>:<value>`.                                                                                                                                                                                                   |
 | `workflow_name`                  |         |          |                                                         | Name of the workflow to run.                                                                                                                                                                                                                                                     |
+
+### Parser: `list`
+
+This parser lists all available workflows.
+
+| Argument                       | Default | Required | Choices | Description                                                                                                                                                                     |
+|--------------------------------|:-------:|:--------:|:-------:|---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `--configuration-file` \| `-c` |         | `false`  |         | Path to the configuration file with workflows and steps. If not provided, then it will try to search for `workflows.yaml` or `workflows.json` in the current working directory. |
