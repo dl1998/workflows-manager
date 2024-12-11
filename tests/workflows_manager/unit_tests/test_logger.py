@@ -30,6 +30,7 @@ class TestJSONLogFormatter:
         record.created = datetime.strptime('2000-01-01 12:00:00', '%Y-%m-%d %H:%M:%S').timestamp()
         assert formatter.format(record) == expected_text
 
+
 class Test:
     @patch('logging.FileHandler', return_value=logging.NullHandler())
     @patch('logging.StreamHandler', return_value=logging.NullHandler())

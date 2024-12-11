@@ -147,5 +147,3 @@ class Test:
             mock_main.assert_called_once()
         mock_get_args.assert_called_once()
         mock_exit.assert_called_once_with(expected_status_code)
-
-
