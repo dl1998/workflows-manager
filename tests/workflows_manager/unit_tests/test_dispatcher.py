@@ -99,18 +99,34 @@ class TestWorkflowDispatcher:
                 mock_runner.assert_not_called()
                 mock_run.assert_not_called()
 
+    @patch('workflows_manager.dispatcher.ListWorkflows')
+    def test_list(self, mock_list, test_configuration: configuration.Configuration):
+        root_logger = logging.getLogger('workflows-manager')
+        workflow_dispatcher = WorkflowDispatcher()
+        workflow_dispatcher.logger = root_logger
+        workflow_dispatcher.configuration = test_configuration
+        workflow_dispatcher.workflow_name = WORKFLOW_NAME
+        workflow_dispatcher.status_file = Path('test.json')
+        workflow_dispatcher.imports = []
+        workflow_dispatcher.list()
+        mock_list.assert_called_once_with(root_logger.getChild('list'), test_configuration)
+        mock_list.return_value.list.assert_called_once()
+
     @pytest.mark.parametrize('action', [
         DispatcherAction.VALIDATE,
         DispatcherAction.RUN,
+        DispatcherAction.LIST,
         None,
     ], ids=[
         'validate action',
         'run action',
+        'list action',
         'unknown action',
     ])
+    @patch.object(dispatcher.WorkflowDispatcher, 'list')
     @patch.object(dispatcher.WorkflowDispatcher, 'run')
     @patch.object(dispatcher.WorkflowDispatcher, 'validate')
-    def test_dispatch(self, mock_validator: MagicMock, mock_runner: MagicMock,
+    def test_dispatch(self, mock_validator: MagicMock, mock_runner: MagicMock, mock_list: MagicMock,
                       test_configuration: configuration.Configuration,
                       action: DispatcherAction):
         root_logger = logging.getLogger('workflows-manager')
@@ -136,15 +152,22 @@ class TestWorkflowDispatcher:
                 'importlib.import_module'), patch.object(Path, 'relative_to') as mock_path_relative_to:
             mock_path_relative_to.return_value = 'packages/file.py'
             workflow_dispatcher.dispatch(action)
-        if action == DispatcherAction.VALIDATE:
+        if action == DispatcherAction.LIST:
+            mock_list.assert_called_once()
+            mock_validator.assert_not_called()
+            mock_runner.assert_not_called()
+        elif action == DispatcherAction.VALIDATE:
             mock_validator.assert_called_once()
             mock_runner.assert_not_called()
+            mock_list.assert_not_called()
         elif action == DispatcherAction.RUN:
             mock_validator.assert_not_called()
             mock_runner.assert_called_once()
+            mock_list.assert_not_called()
         else:
             mock_validator.assert_not_called()
             mock_runner.assert_not_called()
+            mock_list.assert_not_called()
 
 
 def create_path_with_default_cwd(default_path: Path, original_new):

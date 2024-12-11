@@ -92,7 +92,7 @@ class Test:
         mock_get_logger.return_value = mock_logger
         mock_dispatcher = MagicMock()
         mock_dispatcher.dispatch.side_effect = ValueError("Test error")
-        mock_dispatcher_builder.return_value.logger.return_value.disable_current_path_import.return_value.imports.return_value.configuration_file.return_value.workflow_name.return_value.status_file.return_value.build.return_value = mock_dispatcher
+        mock_dispatcher_builder.return_value.logger.return_value.disable_current_path_import.return_value.imports.return_value.configuration_file.return_value.workflow_name.return_value.status_file.return_value.parameters.return_value.build.return_value = mock_dispatcher
 
         arguments = Namespace(
             log_level=logging_level,

@@ -11,6 +11,7 @@ from typing import Union, List, Dict, Any, Optional
 
 from workflows_manager import configuration
 from workflows_manager import workflow
+from workflows_manager.actions.list import ListWorkflows
 from workflows_manager.actions.runner import Runner
 from workflows_manager.actions.validator import Validator
 from workflows_manager.exceptions import UnknownOption, InvalidConfiguration
@@ -24,6 +25,7 @@ class DispatcherAction(Enum):
     """
     VALIDATE = 'validate'
     RUN = 'run'
+    LIST = 'list'
 
     @staticmethod
     def from_str(action: str) -> 'DispatcherAction':
@@ -142,6 +144,13 @@ class WorkflowDispatcher:
             runner.status_file = self.status_file
         runner.run()
 
+    def list(self):
+        """
+        A method to list the workflows.
+        """
+        list_workflows = ListWorkflows(self.logger.getChild('list'), self.configuration)
+        list_workflows.list()
+
     def dispatch(self, action: DispatcherAction):
         """
         A method to dispatch the workflow.
@@ -154,6 +163,8 @@ class WorkflowDispatcher:
             self.validate()
         elif action == DispatcherAction.RUN:
             self.run()
+        elif action == DispatcherAction.LIST:
+            self.list()
         else:
             self.logger.error(f"Unknown action: {action}")
 
