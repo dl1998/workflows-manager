@@ -206,12 +206,12 @@ Example `input.json` content:
 
         === "YAML"
             ```shell
-            workflows-manager run -i <project_path>/steps.py -c <project_path>/workflows.yaml -sp "input_json:<new_path>/input.json" clean-json
+            workflows-manager run -i <project_path>/steps.py -c <project_path>/workflows.yaml -sp "input_json:<new_path>/input.json" -w clean-json
             ```
         
         === "JSON"
             ```shell
-            workflows-manager run -i <project_path>/steps.py -c <project_path>/workflows.json -sp "input_json:<new_path>/input.json" clean-json
+            workflows-manager run -i <project_path>/steps.py -c <project_path>/workflows.json -sp "input_json:<new_path>/input.json" -w clean-json
             ```
 
 3. **Verify Output**:

@@ -11,16 +11,16 @@ By default, the container will look for the steps and workflows in the `/app` di
     
     === "latest"
         ```bash
-        docker run --rm -v <path to the workflow and steps on local machine>:/app dl1998/workflows-manager:latest run <workflow-name>
+        docker run --rm -v <path to the workflow and steps on local machine>:/app dl1998/workflows-manager:latest run
         ```
 
     === "specific version"
         ```bash
-        docker run --rm -v <path to the workflow and steps on local machine>:/app dl1998/workflows-manager:{{workflows_version}} run <workflow-name>
+        docker run --rm -v <path to the workflow and steps on local machine>:/app dl1998/workflows-manager:{{workflows_version}} run
         ```
     
     Replace `<path to the workflow and steps on local machine>` with the path to the directory containing the workflows and
-    steps on your local machine, and `<workflow-name>` with the name of the workflow you want to run.
+    steps on your local machine.
 
 If you have your own Python dependencies that you want to use in the workflows, you can create a custom Docker image
 based on the workflows-manager image. You can create a `Dockerfile` in the same directory as your workflows and steps

@@ -3,7 +3,7 @@ efficient way. You can create a new workflow by reusing the existing steps or wo
 
 There are three types of steps that can be used in the workflows' configuration:
 
-- **normal (default)** - A normal step is a step that executes a single task that is defined in the code.
+- **normal** - A normal step is a step that executes a single task that is defined in the code.
 - **parallel** - A parallel step is a step that executes multiple steps in parallel.
 - **workflow** - A workflow step is a step that executes another workflow.
 

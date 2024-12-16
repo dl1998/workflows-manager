@@ -10,6 +10,32 @@ from workflows_manager.exceptions import InvalidParameter
 PARAMETERS_DELIMITER = ':'
 
 
+def __add_workflow_name_parameter(parser: ArgumentParser, help_text: str, with_default: bool = True):
+    """
+    Add the workflow name parameter to the parser.
+
+    :param parser: Parser to which the workflow name parameter will be added.
+    :type parser: ArgumentParser
+    :param help_text: Help message for the workflow name parameter.
+    :type help_text: str
+    :param with_default: Flag indicating whether the default value should be added.
+    :type with_default: bool
+    """
+    parser.add_argument('--workflow-name', '-w', type=str, default='default' if with_default else None, help=help_text)
+
+
+def __add_configuration_file_parameter(parser):
+    """
+    Add the configuration path parameter to the parser.
+
+    :param parser: Parser to which the configuration path parameter will be added.
+    """
+    parser.add_argument('--configuration-file', '-c', type=str, required=False,
+                        help='Path to the configuration file with workflows and steps. If not provided, '
+                             'then it will try to search for workflows.yaml or workflows.json in the '
+                             'current working directory.')
+
+
 def __create_configuration_group(parser: ArgumentParser):
     """
     Create a group of configuration parameters for the subparser.
@@ -19,10 +45,7 @@ def __create_configuration_group(parser: ArgumentParser):
     """
     configuration_group = parser.add_argument_group('Configuration', 'Configuration of the workflows manager.')
     configuration_group.add_argument('--imports', '-i', action='append', help='List of paths to the workflows modules.')
-    configuration_group.add_argument('--configuration-file', '-c', type=str, required=False,
-                                     help='Path to the configuration file with workflows and steps. If not provided, '
-                                          'then it will try to search for workflows.yaml or workflows.json in the '
-                                          'current working directory.')
+    __add_configuration_file_parameter(configuration_group)
     configuration_group.add_argument('--disable-error-codes', action='store_true',
                                      help='Disable error codes for exceptions. It changes behavior of the application '
                                           'to always return 0 as an exit status code.')
@@ -94,7 +117,7 @@ def __configure_run_action_subparser(parser):
     __create_configuration_group(run_subparser)
     __create_logging_group(run_subparser)
     __create_parameters_group(run_subparser)
-    run_subparser.add_argument('workflow_name', type=str, help='Name of the workflow to run.')
+    __add_workflow_name_parameter(run_subparser, help_text='Name of the workflow to run.')
 
 
 def __configure_validate_action_subparser(parser):
@@ -105,11 +128,10 @@ def __configure_validate_action_subparser(parser):
     """
     validate_subparser = parser.add_parser('validate', help='Validate the workflows configuration.',
                                            formatter_class=RawTextHelpFormatter)
-    validate_subparser.add_argument('--workflow-name', '-w', type=str, required=False,
-                                    help='Name of the workflow to validate. If not provided, it will validate that '
-                                         'required parameters have been provided and all necessary steps have been '
-                                         'registered.')
-
+    __add_workflow_name_parameter(validate_subparser, with_default=False,
+                                  help_text='Name of the workflow to validate. If not provided, it will validate that '
+                                       'required parameters have been provided and all necessary steps have been '
+                                       'registered.')
     __create_configuration_group(validate_subparser)
     __create_logging_group(validate_subparser)
     __create_parameters_group(validate_subparser)
@@ -123,10 +145,7 @@ def __configure_list_action_subparser(parser):
     """
     list_subparser = parser.add_parser('list', help='List the workflows.', formatter_class=RawTextHelpFormatter)
     configuration_group = list_subparser.add_argument_group('Configuration', 'Configuration of the workflows manager.')
-    configuration_group.add_argument('--configuration-file', '-c', type=str, required=False,
-                                     help='Path to the configuration file with workflows and steps. If not provided, '
-                                          'then it will try to search for workflows.yaml or workflows.json in the '
-                                          'current working directory.')
+    __add_configuration_file_parameter(configuration_group)
     __create_logging_group(list_subparser)
 
 
