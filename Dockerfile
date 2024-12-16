@@ -1,5 +1,5 @@
 # Stage 1: Build dependencies and prepare the application
-ARG PYTHON_VERSION=3.9
+ARG PYTHON_VERSION=3.13
 FROM python:${PYTHON_VERSION}-alpine AS build
 
 # Set working directory
