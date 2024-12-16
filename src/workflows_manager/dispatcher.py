@@ -331,9 +331,26 @@ class WorkflowDispatcherBuilder:
             import_paths.append(import_path)
         return import_paths
 
+    @staticmethod
+    def __check_workflow_exists(dispatcher: WorkflowDispatcher):
+        """
+        A method to check if the workflow exists in the configuration.
+
+        :param dispatcher: The workflow dispatcher.
+        :type dispatcher: WorkflowDispatcher
+        :raise InvalidConfiguration: If the workflow does not exist in the configuration.
+        """
+        available_workflows = [workflow_configuration.name for workflow_configuration in
+                               dispatcher.configuration.workflows.elements]
+        if dispatcher.workflow_name and dispatcher.workflow_name not in available_workflows:
+            raise InvalidConfiguration(
+                f"Workflow '{dispatcher.workflow_name}' is not defined in the configuration file")
+
     def build(self) -> WorkflowDispatcher:
         """
         A method to build the workflow dispatcher.
+
+        :raise InvalidConfiguration: If the workflow does not exist in the configuration.
         :return: WorkflowDispatcher instance.
         :rtype: WorkflowDispatcher
         """
@@ -350,4 +367,5 @@ class WorkflowDispatcherBuilder:
         dispatcher.status_file = self.__status_file
         dispatcher.workflow_name = self.__workflow_name
         dispatcher.parameters = self.__parameters
+        self.__check_workflow_exists(dispatcher)
         return dispatcher

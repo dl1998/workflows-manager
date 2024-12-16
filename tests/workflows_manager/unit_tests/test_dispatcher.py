@@ -9,6 +9,7 @@ from unittest.mock import patch, MagicMock
 import pytest
 
 from workflows_manager import configuration, workflow, dispatcher
+from workflows_manager.configuration import Configuration, Workflows, Workflow, Steps, Step, NormalStep
 from workflows_manager.dispatcher import DispatcherAction, WorkflowDispatcher, WorkflowDispatcherBuilder, \
     ConfigurationFormat
 from workflows_manager.exceptions import UnknownOption, InvalidConfiguration
@@ -341,6 +342,11 @@ class TestWorkflowDispatcherBuilder:
             Path(f'{test_cwd}/present'),
             Path(f'{test_cwd}/duplicated'),
         ]
+        workflows = [Workflow('workflow', Steps([NormalStep('example-step', id='step-id')]))]
+        mock_workflow = MagicMock()
+        mock_workflow.workflows.elements = workflows
+        mock_configuration.from_json.return_value = mock_workflow
+        mock_configuration.from_yaml.return_value = mock_workflow
         configuration_file = MagicMock()
         status_file = Path(f'{test_cwd}/status.json')
         workflow_name = 'workflow'
@@ -377,7 +383,7 @@ class TestWorkflowDispatcherBuilder:
                 mock_configuration.from_yaml.assert_called_once_with(configuration_file)
             mock_dispatcher.configuration.validate_all.assert_called_once()
 
-    def test_build_error(self):
+    def test_build_error_unknown_option(self):
         logger = logging.getLogger('noop_logger')
         workflow_dispatcher_builder = WorkflowDispatcherBuilder()
         workflow_dispatcher_builder._WorkflowDispatcherBuilder__configuration_file_format = None
@@ -387,3 +393,23 @@ class TestWorkflowDispatcherBuilder:
         with pytest.raises(UnknownOption) as exception:
             workflow_dispatcher_builder.build()
             assert str(exception.value) == 'Unknown configuration file format: None'
+
+    @patch('workflows_manager.configuration.Configuration')
+    def test_build_error_invalid_configuration(self, mock_configuration: MagicMock):
+        logger = logging.getLogger('noop_logger')
+        workflow_dispatcher_builder = WorkflowDispatcherBuilder()
+        workflow_dispatcher_builder._WorkflowDispatcherBuilder__configuration_file_format = ConfigurationFormat.JSON
+        workflow_dispatcher_builder._WorkflowDispatcherBuilder__configuration_file = MagicMock()
+        workflow_dispatcher_builder._WorkflowDispatcherBuilder__status_file = 'status.json'
+        workflow_dispatcher_builder._WorkflowDispatcherBuilder__workflow_name = 'undefined'
+        workflow_dispatcher_builder._WorkflowDispatcherBuilder__parameters = {}
+        workflows = [Workflow('workflow', Steps([NormalStep('example-step', id='step-id')]))]
+        mock_workflow = MagicMock()
+        mock_workflow.workflows.elements = workflows
+        mock_configuration.from_json.return_value = mock_workflow
+        workflow_dispatcher_builder._WorkflowDispatcherBuilder__imports = []
+        workflow_dispatcher_builder.logger(logger)
+        workflow_dispatcher_builder.disable_current_path_import(True)
+        with pytest.raises(InvalidConfiguration) as exception:
+            workflow_dispatcher_builder.build()
+            assert str(exception.value) == "Workflow 'undefined' is not defined in the configuration file"

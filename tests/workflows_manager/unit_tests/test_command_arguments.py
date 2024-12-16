@@ -11,7 +11,8 @@ class Test:
     PROGRAM_NAME = 'workflows-manager'
 
     def test_get_args_imports_argument(self):
-        with patch('sys.argv', [self.PROGRAM_NAME, 'run', '--imports', 'path1', '--imports', 'path2', 'workflow-name']):
+        with patch('sys.argv', [self.PROGRAM_NAME, 'run', '--imports', 'path1', '--imports', 'path2', '--workflow-name',
+                                'workflow-name']):
             args = get_args()
             expected = Namespace(
                 imports=['path1', 'path2'],
@@ -36,7 +37,7 @@ class Test:
             assert args == expected
 
     def test_get_args_log_level_argument(self):
-        with patch('sys.argv', [self.PROGRAM_NAME, 'run', '--log-level', 'debug', 'workflow-name']):
+        with patch('sys.argv', [self.PROGRAM_NAME, 'run', '--log-level', 'debug', '--workflow-name', 'workflow-name']):
             args = get_args()
             assert args.log_level == 'debug'
             assert args.action == 'run'
@@ -53,22 +54,24 @@ class Test:
             assert args.workflow_name == 'my_workflow'
 
     def test_get_args_run_subcommand_with_workflow_name_and_status_file(self):
-        with patch('sys.argv', [self.PROGRAM_NAME, 'run', '--status-file', 'status.log', 'example_workflow']):
+        with patch('sys.argv',
+                   [self.PROGRAM_NAME, 'run', '--status-file', 'status.log', '--workflow-name', 'example_workflow']):
             args = get_args()
             assert args.action == 'run'
             assert args.status_file == 'status.log'
             assert args.workflow_name == 'example_workflow'
 
     def test_get_args_default_values(self):
-        with patch('sys.argv', [self.PROGRAM_NAME, 'run', 'workflow-name']):
+        with patch('sys.argv', [self.PROGRAM_NAME, 'run']):
             args = get_args()
             assert args.log_level == 'info'
             assert args.console_log_format == 'text'
             assert args.file_log_format == 'text'
             assert args.log_file is None
+            assert args.workflow_name == 'default'
 
     def test_get_args_disable_error_codes_flag(self):
-        with patch('sys.argv', [self.PROGRAM_NAME, 'run', '--disable-error-codes', 'workflow-name']):
+        with patch('sys.argv', [self.PROGRAM_NAME, 'run', '--disable-error-codes', '--workflow-name', 'workflow-name']):
             args = get_args()
             assert args.disable_error_codes
 
