@@ -32,7 +32,7 @@ python3 -m pip install workflows-manager
 To run the workflows manager, you can use the following command:
 
 ```shell
-workflows-manager -c <path_to_workflows_configuration> run <workflow_name>
+workflows-manager -c <path_to_workflows_configuration> run -w <workflow_name>
 ```
 
 More options are available, you can check them using the following command:
