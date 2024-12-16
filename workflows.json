@@ -61,23 +61,9 @@
         "parameters": {
           "$ref": "#/$defs/parameters"
         },
-        "capture_stdout": {
+        "stop_on_error": {
           "type": "boolean",
-          "description": "Flag to specify whether to capture the standard output stream of the step."
-        },
-        "capture_stderr": {
-          "type": "boolean",
-          "description": "Flag to specify whether to capture the standard error stream of the step."
-        },
-        "type": {
-          "type": "string",
-            "description": "Type of the step, could be either 'normal', 'workflow' or 'parallel'.",
-          "enum": [
-            "normal",
-            "workflow",
-            "parallel"
-          ],
-          "default": "normal"
+          "description": "Flag to specify whether the workflow should stop if this step fails."
         }
       },
       "required": [
@@ -85,95 +71,127 @@
       ],
       "oneOf": [
         {
-          "properties": {
-            "step": {
-              "type": "string",
-              "description": "Name of the step that will be executed. This step must be registered in the code."
-            }
-          },
-          "required": [
-            "step"
-          ]
-        },
-        {
-          "properties": {
-            "workflow": {
-              "type": "string",
-              "description": "Name of the workflow that will executed. This workflow must exists in the 'workflows' object."
-            }
-          },
-          "required": [
-            "workflow"
-          ]
-        },
-        {
-          "properties": {
-            "parallels": {
-              "type": "array",
-              "description": "List of steps that will be executed in parallel.",
-              "minItems": 1,
-              "items": {
-                "$ref": "#/$defs/step"
+          "if": {
+            "properties": {
+              "step": {
+                "type": "string"
               }
             }
           },
-          "required": [
-            "parallels"
-          ]
-        }
-      ],
-      "dependencies": {
-        "type": {
-          "oneOf": [
-            {
-              "properties": {
-                "type": {
-                  "const": "normal"
-                },
-                "step": {
-                  "type": "string",
-                    "description": "Name of the step that will be executed. This step must be registered in the code."
-                }
+          "then": {
+            "properties": {
+              "step": {
+                "type": "string",
+                "description": "Name of the step that will be executed. This step name must be the name registered in the code."
               },
-              "required": [
-                "step"
-              ]
+              "type": {
+                "type": "string",
+                "description": "Type of the step.",
+                "enum": [
+                  "normal"
+                ]
+              },
+              "capture_stdout": {
+                "type": "boolean",
+                "description": "Flag to specify whether to capture the standard output stream of the step."
+              },
+              "capture_stderr": {
+                "type": "boolean",
+                "description": "Flag to specify whether to capture the standard error stream of the step."
+              }
             },
-            {
-              "properties": {
-                "type": {
-                  "const": "workflow"
-                },
-                "workflow": {
-                  "type": "string",
-                  "description": "Name of the workflow that will executed. This workflow must exists in the 'workflows' object."
-                }
+            "required": [
+              "step"
+            ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "workflow": {
+                "type": "string"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "workflow": {
+                "type": "string",
+                "description": "Name of the workflow that will be executed. This workflow must exist in the 'workflows' object."
               },
-              "required": [
-                "workflow"
-              ]
+              "type": {
+                "type": "string",
+                "description": "Type of the step.",
+                "enum": [
+                  "workflow"
+                ]
+              }
             },
-            {
-              "properties": {
-                "type": {
-                  "const": "parallel"
+            "required": [
+              "workflow"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "capture_stdout"
+                  ]
                 },
-                "parallels": {
-                  "type": "array",
-                  "description": "List of steps that will be executed in parallel.",
-                  "minItems": 1,
-                  "items": {
-                    "$ref": "#/$defs/step"
-                  }
+                {
+                  "required": [
+                    "capture_stderr"
+                  ]
                 }
-              },
-              "required": [
-                "parallels"
               ]
             }
-          ]
+          }
+        },
+        {
+          "if": {
+            "properties": {
+              "parallels": {
+                "type": "array"
+              }
+            }
+          },
+          "then": {
+            "properties": {
+              "parallels": {
+                "type": "array",
+                "description": "List of steps that will be executed in parallel.",
+                "minItems": 1,
+                "items": {
+                  "$ref": "#/$defs/step"
+                }
+              },
+              "type": {
+                "type": "string",
+                "description": "Type of the step.",
+                "enum": [
+                  "parallel"
+                ]
+              }
+            },
+            "required": [
+              "parallels"
+            ],
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "capture_stdout"
+                  ]
+                },
+                {
+                  "required": [
+                    "capture_stderr"
+                  ]
+                }
+              ]
+            }
+          }
         }
-      },
+      ],
       "unevaluatedProperties": false
     }
   },
