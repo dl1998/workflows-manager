@@ -52,6 +52,13 @@ class StepPath:
         """
         return self.__step_name
 
+    @name.setter
+    def name(self, step_name: str):
+        """
+        A property to set the name of the step.
+        """
+        self.__step_name = step_name
+
     def __hash__(self):
         return hash((self.__path, self.__step_type, self.__step_name))
 
