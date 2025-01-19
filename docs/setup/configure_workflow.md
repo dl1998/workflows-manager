@@ -210,7 +210,7 @@ original type. However, there is one exception: if the template variable is a st
 will be treated as a string and will not be converted.
 
 **Note:** To use `{` and `}` characters in the value of the parameter, you need to escape them by using double brackets
-`{{` and `}}`.
+`{{ '{{' }}` and `{{ '}}' }}`.
 
 **Example:** let's say you have a parameter `age` with the value `18` that you want to use in the `message` variable.
 You can use the `age` variable in the `message` in the following way: `"Age, { age }"`, that will cause that value
