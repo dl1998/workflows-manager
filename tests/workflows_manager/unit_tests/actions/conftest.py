@@ -91,7 +91,6 @@ def test_expected_status() -> Dict:
                     {
                         'children': [
                             {
-                                'children': None,
                                 'error': None,
                                 'name': 'Normal Step',
                                 'parameters': {
@@ -111,20 +110,14 @@ def test_expected_status() -> Dict:
                         'error': None,
                         'name': 'Parallel Step',
                         'parameters': None,
-                        'return_value': None,
                         'status': 'success',
-                        'stderr': None,
-                        'stdout': None,
                         'type': 'parallel'
                     }
                 ],
                 'error': None,
                 'name': 'Workflow Step',
                 'parameters': None,
-                'return_value': None,
                 'status': 'success',
-                'stderr': None,
-                'stdout': None,
                 'type': 'workflow'
             },
             {
@@ -132,7 +125,6 @@ def test_expected_status() -> Dict:
                     {
                         'children': [
                             {
-                                'children': None,
                                 'error': 'error message',
                                 'name': 'Normal Step',
                                 'parameters': {
@@ -152,20 +144,14 @@ def test_expected_status() -> Dict:
                         'error': 'error message',
                         'name': 'Parallel Step',
                         'parameters': None,
-                        'return_value': None,
                         'status': 'failed',
-                        'stderr': None,
-                        'stdout': None,
                         'type': 'parallel'
                     }
                 ],
                 'error': 'error message',
                 'name': 'Another Workflow Step',
                 'parameters': None,
-                'return_value': None,
                 'status': 'failed',
-                'stderr': None,
-                'stdout': None,
                 'type': 'workflow',
             }
         ]
