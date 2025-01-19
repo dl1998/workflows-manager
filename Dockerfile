@@ -19,6 +19,25 @@ RUN hatch build
 
 FROM python:${PYTHON_VERSION}-alpine AS runtime
 
+# Declare a build argument for the version
+ARG VERSION
+ARG REVISION
+ARG CREATION_DATE
+
+# Set labels
+LABEL maintainer="dima.leshcenko1998@gmail.com"
+LABEL description="A Docker image for Python CLI application that allows to run custom workflows."
+LABEL license="MIT"
+LABEL version=$VERSION
+
+LABEL org.opencontainers.image.title="workflows-manager"
+LABEL org.opencontainers.image.description="A Docker image for Python CLI application that allows to run custom workflows."
+LABEL org.opencontainers.image.version=$VERSION
+LABEL org.opencontainers.image.documentation="https://dl1998.github.io/workflows-manager"
+LABEL org.opencontainers.image.source="https://github.com/dl1998/workflows-manager"
+LABEL org.opencontainers.image.revision=$REVISION
+LABEL org.opencontainers.image.created=$CREATION_DATE
+
 # Set working directory
 WORKDIR /app
 
