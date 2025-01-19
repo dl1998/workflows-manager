@@ -55,8 +55,7 @@ jobs:
         id: check_pypi
         run: |
           HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" https://pypi.org/pypi/${{ env.REPOSITORY_NAME }}/${{ env.VERSION }}/json)
-          echo "version_exists=$([ "$HTTP_CODE" == "200" ] && echo true || echo false)" >> $GITHUB_ENV
-          echo "::set-output name=version_exists::$([ "$HTTP_CODE" == "200" ] && echo true || echo false)"
+          echo "version_exists=$([ "$HTTP_CODE" == "200" ] && echo true || echo false)" >> $GITHUB_OUTPUT
 
   publish-library-dev:
     name: Publish new release on dev
