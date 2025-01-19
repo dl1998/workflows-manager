@@ -17,10 +17,21 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v3
-      - name: Install PlantUML and Graphviz
+      - name: Install libraries
         run: |
           sudo apt-get update
-          sudo apt-get install -y plantuml graphviz
+          sudo apt-get install -y graphviz jq curl
+      - name: Download Latest PlantUML
+        run: |
+          PLANTUML_URL=$(curl -s https://api.github.com/repos/plantuml/plantuml/releases/latest | jq -r '.assets[] | select(.name == "plantuml.jar") | .browser_download_url')
+          if [ -z "$PLANTUML_URL" ]; then
+            echo "Failed to retrieve PlantUML jar file URL."
+            exit 1
+          fi
+          curl -L "$PLANTUML_URL" -o /usr/local/bin/plantuml.jar
+          echo -e '#!/bin/bash\njava -jar /usr/local/bin/plantuml.jar "$@"' | sudo tee /usr/local/bin/plantuml > /dev/null
+          sudo chmod +x /usr/local/bin/plantuml
+          export PATH="/usr/local/bin:$PATH"
       - name: Setup Python
         uses: actions/setup-python@v4
         with:
