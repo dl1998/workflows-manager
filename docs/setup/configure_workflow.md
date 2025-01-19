@@ -209,6 +209,9 @@ will be converted to a string before injecting it into the attribute, except of 
 original type. However, there is one exception: if the template variable is a string that contains additional text, it
 will be treated as a string and will not be converted.
 
+**Note:** To use `{` and `}` characters in the value of the parameter, you need to escape them by using double brackets
+`{{` and `}}`.
+
 **Example:** let's say you have a parameter `age` with the value `18` that you want to use in the `message` variable.
 You can use the `age` variable in the `message` in the following way: `"Age, { age }"`, that will cause that value
 assigned to message will be of `str` type, but if you use `"{ age }"` as a value for `message` variable, it will be
