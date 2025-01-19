@@ -9,25 +9,25 @@
       
       
       
-        <link rel="prev" href="../cli/">
+        <link rel="prev" href="../../../workflows_syntax/">
       
       
-        <link rel="next" href="../../tutorials/json_cleaning_workflow/">
+        <link rel="next" href="../misc/">
       
       
-      <link rel="icon" href="../../assets/images/favicon.png">
+      <link rel="icon" href="../../../../assets/images/favicon.png">
       <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.5.43">
     
     
       
-        <title>Docker Image - Workflows Manager Documentation</title>
+        <title>Module: list - Workflows Manager Documentation</title>
       
     
     
-      <link rel="stylesheet" href="../../assets/stylesheets/main.0253249f.min.css">
+      <link rel="stylesheet" href="../../../../assets/stylesheets/main.0253249f.min.css">
       
         
-        <link rel="stylesheet" href="../../assets/stylesheets/palette.06af60db.min.css">
+        <link rel="stylesheet" href="../../../../assets/stylesheets/palette.06af60db.min.css">
       
       
 
@@ -46,16 +46,16 @@
       
     
     
-      <link rel="stylesheet" href="../../assets/_mkdocstrings.css">
+      <link rel="stylesheet" href="../../../../assets/_mkdocstrings.css">
     
-    <script>__md_scope=new URL("../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    <script>__md_scope=new URL("../../../..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
     
       
 
     
     
     
-   <link href="../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
+   <link href="../../../../assets/stylesheets/glightbox.min.css" rel="stylesheet"/><style>
     html.glightbox-open { overflow: initial; height: 100%; }
     .gslide-title { margin-top: 0px; user-select: text; }
     .gslide-desc { color: #666; user-select: text; }
@@ -64,7 +64,7 @@
     .gdesc-inner { font-size: 0.75rem; }
     body[data-md-color-scheme="slate"] .gdesc-inner { background: var(--md-default-bg-color);}
     body[data-md-color-scheme="slate"] .gslide-title { color: var(--md-default-fg-color);}
-    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../assets/javascripts/glightbox.min.js"></script></head>
+    body[data-md-color-scheme="slate"] .gslide-desc { color: var(--md-default-fg-color);}</style> <script src="../../../../assets/javascripts/glightbox.min.js"></script></head>
   
   
     
@@ -81,6 +81,11 @@
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
     <label class="md-overlay" for="__drawer"></label>
     <div data-md-component="skip">
+      
+        
+        <a href="#workflows_manager.actions.list.ListWorkflows" class="md-skip">
+          Skip to content
+        </a>
       
     </div>
     <div data-md-component="announce">
@@ -104,7 +109,7 @@
     }
   </style>
   You're not viewing the latest version.
-  <a href="../../../latest" id="new-version-link">
+  <a href="../../../../../latest" id="new-version-link">
     <strong>Click here to go to latest.</strong>
   </a>
 
@@ -121,7 +126,7 @@
 
 <header class="md-header md-header--shadow md-header--lifted" data-md-component="header">
   <nav class="md-header__inner md-grid" aria-label="Header">
-    <a href="../.." title="Workflows Manager Documentation" class="md-header__button md-logo" aria-label="Workflows Manager Documentation" data-md-component="logo">
+    <a href="../../../.." title="Workflows Manager Documentation" class="md-header__button md-logo" aria-label="Workflows Manager Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -141,7 +146,7 @@
         <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
-              Docker Image
+              Module: list
             
           </span>
         </div>
@@ -240,13 +245,11 @@
         
   
   
-    
-  
   
     
     
-      <li class="md-tabs__item md-tabs__item--active">
-        <a href="../.." class="md-tabs__link">
+      <li class="md-tabs__item">
+        <a href="../../../.." class="md-tabs__link">
           
   
   Getting Started
@@ -264,7 +267,7 @@
     
     
       <li class="md-tabs__item">
-        <a href="../../tutorials/json_cleaning_workflow/" class="md-tabs__link">
+        <a href="../../../../tutorials/json_cleaning_workflow/" class="md-tabs__link">
           
   
   Tutorials
@@ -278,11 +281,13 @@
         
   
   
+    
+  
   
     
     
-      <li class="md-tabs__item">
-        <a href="../../developers/architecture/" class="md-tabs__link">
+      <li class="md-tabs__item md-tabs__item--active">
+        <a href="../../../architecture/" class="md-tabs__link">
           
   
   Developers
@@ -323,7 +328,7 @@
 
 <nav class="md-nav md-nav--primary md-nav--lifted md-nav--integrated" aria-label="Navigation" data-md-level="0">
   <label class="md-nav__title" for="__drawer">
-    <a href="../.." title="Workflows Manager Documentation" class="md-nav__button md-logo" aria-label="Workflows Manager Documentation" data-md-component="logo">
+    <a href="../../../.." title="Workflows Manager Documentation" class="md-nav__button md-logo" aria-label="Workflows Manager Documentation" data-md-component="logo">
       
   
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
@@ -350,28 +355,23 @@
       
   
   
-    
   
   
-  
     
     
     
       
-        
-        
-      
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1" >
         
           
-          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="">
+          <label class="md-nav__link" for="__nav_1" id="__nav_1_label" tabindex="0">
             
   
   <span class="md-ellipsis">
@@ -382,7 +382,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_1_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1">
             <span class="md-nav__icon md-icon"></span>
             Getting Started
@@ -396,7 +396,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../.." class="md-nav__link">
+      <a href="../../../.." class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -414,8 +414,6 @@
                 
   
   
-    
-  
   
   
     
@@ -425,11 +423,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_2" checked>
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_1_2" >
         
           
           <label class="md-nav__link" for="__nav_1_2" id="__nav_1_2_label" tabindex="0">
@@ -443,7 +441,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="true">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_1_2_label" aria-expanded="false">
           <label class="md-nav__title" for="__nav_1_2">
             <span class="md-nav__icon md-icon"></span>
             Setup
@@ -457,7 +455,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../write_a_step/" class="md-nav__link">
+      <a href="../../../../setup/write_a_step/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -478,7 +476,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../configure_workflow/" class="md-nav__link">
+      <a href="../../../../setup/configure_workflow/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -499,7 +497,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../cli/" class="md-nav__link">
+      <a href="../../../../setup/cli/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -517,17 +515,10 @@
                 
   
   
-    
   
   
-  
-    <li class="md-nav__item md-nav__item--active">
-      
-      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
-      
-      
-      
-      <a href="./" class="md-nav__link md-nav__link--active">
+    <li class="md-nav__item">
+      <a href="../../../../setup/docker/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -536,7 +527,6 @@
   
 
       </a>
-      
     </li>
   
 
@@ -602,7 +592,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../tutorials/json_cleaning_workflow/" class="md-nav__link">
+      <a href="../../../../tutorials/json_cleaning_workflow/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -627,23 +617,28 @@
       
   
   
+    
   
   
+  
     
     
     
-      
-      
-    
-    
-    <li class="md-nav__item md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" >
+      
+      
+    
+    
+    <li class="md-nav__item md-nav__item--active md-nav__item--section md-nav__item--nested">
+      
+        
+        
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3" checked>
         
           
-          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="0">
+          <label class="md-nav__link" for="__nav_3" id="__nav_3_label" tabindex="">
             
   
   <span class="md-ellipsis">
@@ -654,7 +649,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="1" aria-labelledby="__nav_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3">
             <span class="md-nav__icon md-icon"></span>
             Developers
@@ -668,7 +663,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developers/architecture/" class="md-nav__link">
+      <a href="../../../architecture/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -689,7 +684,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developers/workflows_syntax/" class="md-nav__link">
+      <a href="../../../workflows_syntax/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -707,6 +702,8 @@
                 
   
   
+    
+  
   
   
     
@@ -716,11 +713,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3" checked>
         
           
           <label class="md-nav__link" for="__nav_3_3" id="__nav_3_3_label" tabindex="0">
@@ -734,7 +731,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="2" aria-labelledby="__nav_3_3_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_3">
             <span class="md-nav__icon md-icon"></span>
             Modules
@@ -745,6 +742,8 @@
                 
   
   
+    
+  
   
   
     
@@ -754,11 +753,11 @@
       
     
     
-    <li class="md-nav__item md-nav__item--nested">
+    <li class="md-nav__item md-nav__item--active md-nav__item--nested">
       
         
         
-        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_1" >
+        <input class="md-nav__toggle md-toggle " type="checkbox" id="__nav_3_3_1" checked>
         
           
           <label class="md-nav__link" for="__nav_3_3_1" id="__nav_3_3_1_label" tabindex="0">
@@ -772,7 +771,7 @@
             <span class="md-nav__icon md-icon"></span>
           </label>
         
-        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_1_label" aria-expanded="false">
+        <nav class="md-nav" data-md-level="3" aria-labelledby="__nav_3_3_1_label" aria-expanded="true">
           <label class="md-nav__title" for="__nav_3_3_1">
             <span class="md-nav__icon md-icon"></span>
             Module: actions
@@ -783,10 +782,28 @@
                 
   
   
+    
   
   
-    <li class="md-nav__item">
-      <a href="../../developers/modules/actions/list/" class="md-nav__link">
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Module: list
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
         
   
   <span class="md-ellipsis">
@@ -795,6 +812,48 @@
   
 
       </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#workflows_manager.actions.list.ListWorkflows" class="md-nav__link">
+    <span class="md-ellipsis">
+      ListWorkflows
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ListWorkflows">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#workflows_manager.actions.list.ListWorkflows.list" class="md-nav__link">
+    <span class="md-ellipsis">
+      list
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
     </li>
   
 
@@ -807,7 +866,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developers/modules/actions/misc/" class="md-nav__link">
+      <a href="../misc/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -828,7 +887,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developers/modules/actions/runner/" class="md-nav__link">
+      <a href="../runner/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -849,7 +908,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developers/modules/actions/validator/" class="md-nav__link">
+      <a href="../validator/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -916,7 +975,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developers/modules/utils/reference_resolver/" class="md-nav__link">
+      <a href="../../utils/reference_resolver/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -945,7 +1004,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developers/modules/command_arguments/" class="md-nav__link">
+      <a href="../../command_arguments/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -966,7 +1025,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developers/modules/configuration/" class="md-nav__link">
+      <a href="../../configuration/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -987,7 +1046,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developers/modules/dispatcher/" class="md-nav__link">
+      <a href="../../dispatcher/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1008,7 +1067,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developers/modules/exceptions/" class="md-nav__link">
+      <a href="../../exceptions/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1029,7 +1088,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developers/modules/logger/" class="md-nav__link">
+      <a href="../../logger/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1050,7 +1109,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developers/modules/workflow/" class="md-nav__link">
+      <a href="../../workflow/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1071,7 +1130,7 @@
   
   
     <li class="md-nav__item">
-      <a href="../../developers/modules/main/" class="md-nav__link">
+      <a href="../../main/" class="md-nav__link">
         
   
   <span class="md-ellipsis">
@@ -1115,7 +1174,7 @@
                   
 
   
-    <a href="https://github.com/dl1998/workflows-manager/edit/main/docs/setup/docker.md" title="Edit this page" class="md-content__button md-icon">
+    <a href="https://github.com/dl1998/workflows-manager/edit/main/docs/developers/modules/actions/list.md" title="Edit this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20.71 7.04c.39-.39.39-1.04 0-1.41l-2.34-2.34c-.37-.39-1.02-.39-1.41 0l-1.84 1.83 3.75 3.75M3 17.25V21h3.75L17.81 9.93l-3.75-3.75z"/></svg>
     </a>
@@ -1124,69 +1183,154 @@
     
       
     
-    <a href="https://github.com/dl1998/workflows-manager/raw/main/docs/setup/docker.md" title="View source of this page" class="md-content__button md-icon">
+    <a href="https://github.com/dl1998/workflows-manager/raw/main/docs/developers/modules/actions/list.md" title="View source of this page" class="md-content__button md-icon">
       
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 9a3 3 0 0 0-3 3 3 3 0 0 0 3 3 3 3 0 0 0 3-3 3 3 0 0 0-3-3m0 8a5 5 0 0 1-5-5 5 5 0 0 1 5-5 5 5 0 0 1 5 5 5 5 0 0 1-5 5m0-12.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5"/></svg>
     </a>
   
 
 
-  <h1>Docker Image</h1>
+  <h1>Module: list</h1>
 
-<p>The workflows-manager provides a Docker image that can be used to run the workflows in a Docker container. The image is
-based on the <code>python:3.9-alpine</code> image and contains the workflows-manager package and its dependencies.</p>
-<p>To use the Docker image, you need to have Docker installed on your machine. You can install Docker by following the
-instructions on the <a href="https://docs.docker.com/get-docker/">official Docker website</a>.</p>
-<p>To run the workflows in a Docker container, you need to mount the directory containing the workflows to the container.
-By default, the container will look for the steps and workflows in the <code>/app</code> directory.</p>
-<div class="admonition example">
-<p class="admonition-title">Example</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">latest</label><label for="__tabbed_1_2">specific version</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span>&lt;path<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>workflow<span class="w"> </span>and<span class="w"> </span>steps<span class="w"> </span>on<span class="w"> </span><span class="nb">local</span><span class="w"> </span>machine&gt;:/app<span class="w"> </span>dl1998/workflows-manager:latest<span class="w"> </span>run
-</span></code></pre></div>
+<div class="doc doc-object doc-module">
+
+
+
+
+    <div class="doc doc-contents first">
+
+        <p>Module contains list action that is responsible for listing all available workflows.</p>
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="workflows_manager.actions.list.ListWorkflows" class="doc doc-heading">
+            <code>ListWorkflows</code>
+
+
+<a href="#workflows_manager.actions.list.ListWorkflows" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+
+
+        <p>A class to list all available workflows.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>logger</code>
+            </td>
+            <td>
+                  <code><span title="logging.Logger">Logger</span></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Logger instance.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>workflows_configuration</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="workflows_manager.configuration.Configuration" href="../../configuration/#workflows_manager.configuration.Configuration">Configuration</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Configuration instance.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="workflows_manager.actions.list.ListWorkflows.list" class="doc doc-heading">
+            <code class="highlight language-python"><span class="nb">list</span><span class="p">()</span></code>
+
+<a href="#workflows_manager.actions.list.ListWorkflows.list" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>A method that list all available workflows.</p>
+
+    </div>
+
 </div>
-<div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span>&lt;path<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>workflow<span class="w"> </span>and<span class="w"> </span>steps<span class="w"> </span>on<span class="w"> </span><span class="nb">local</span><span class="w"> </span>machine&gt;:/app<span class="w"> </span>dl1998/workflows-manager:0.4.0<span class="w"> </span>run
-</span></code></pre></div>
+
+
+
+  </div>
+
+    </div>
+
 </div>
+
+
+
+
+  </div>
+
+    </div>
+
 </div>
-</div>
-<p>Replace <code>&lt;path to the workflow and steps on local machine&gt;</code> with the path to the directory containing the workflows and
-steps on your local machine.</p>
-</div>
-<p>If you have your own Python dependencies that you want to use in the workflows, you can create a custom Docker image
-based on the workflows-manager image. You can create a <code>Dockerfile</code> in the same directory as your workflows and steps
-with the following content:</p>
-<div class="tabbed-set tabbed-alternate" data-tabs="2:2"><input checked="checked" id="__tabbed_2_1" name="__tabbed_2" type="radio" /><input id="__tabbed_2_2" name="__tabbed_2" type="radio" /><div class="tabbed-labels"><label for="__tabbed_2_1">latest</label><label for="__tabbed_2_2">specific version</label></div>
-<div class="tabbed-content">
-<div class="tabbed-block">
-<div class="language-Dockerfile highlight"><pre><span></span><code><span id="__span-2-1"><a id="__codelineno-2-1" name="__codelineno-2-1" href="#__codelineno-2-1"></a><span class="k">FROM</span><span class="w"> </span><span class="s">dl1998/workflows-manager:latest</span>
-</span><span id="__span-2-2"><a id="__codelineno-2-2" name="__codelineno-2-2" href="#__codelineno-2-2"></a>
-</span><span id="__span-2-3"><a id="__codelineno-2-3" name="__codelineno-2-3" href="#__codelineno-2-3"></a><span class="c"># Install additional Python dependencies</span>
-</span><span id="__span-2-4"><a id="__codelineno-2-4" name="__codelineno-2-4" href="#__codelineno-2-4"></a><span class="k">COPY</span><span class="w"> </span>requirements.txt<span class="w"> </span>/app
-</span><span id="__span-2-5"><a id="__codelineno-2-5" name="__codelineno-2-5" href="#__codelineno-2-5"></a>
-</span><span id="__span-2-6"><a id="__codelineno-2-6" name="__codelineno-2-6" href="#__codelineno-2-6"></a><span class="k">RUN</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
-</span></code></pre></div>
-</div>
-<div class="tabbed-block">
-<div class="language-Dockerfile highlight"><pre><span></span><code><span id="__span-3-1"><a id="__codelineno-3-1" name="__codelineno-3-1" href="#__codelineno-3-1"></a><span class="k">FROM</span><span class="w"> </span><span class="s">dl1998/workflows-manager:0.4.0</span>
-</span><span id="__span-3-2"><a id="__codelineno-3-2" name="__codelineno-3-2" href="#__codelineno-3-2"></a>
-</span><span id="__span-3-3"><a id="__codelineno-3-3" name="__codelineno-3-3" href="#__codelineno-3-3"></a><span class="c"># Install additional Python dependencies</span>
-</span><span id="__span-3-4"><a id="__codelineno-3-4" name="__codelineno-3-4" href="#__codelineno-3-4"></a><span class="k">COPY</span><span class="w"> </span>requirements.txt<span class="w"> </span>/app
-</span><span id="__span-3-5"><a id="__codelineno-3-5" name="__codelineno-3-5" href="#__codelineno-3-5"></a>
-</span><span id="__span-3-6"><a id="__codelineno-3-6" name="__codelineno-3-6" href="#__codelineno-3-6"></a><span class="k">RUN</span><span class="w"> </span>pip<span class="w"> </span>install<span class="w"> </span>-r<span class="w"> </span>requirements.txt
-</span></code></pre></div>
-</div>
-</div>
-</div>
-<p>You can then build the custom Docker image using the following command, you need to run it in the same directory as the
-<code>Dockerfile</code>:</p>
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-4-1"><a id="__codelineno-4-1" name="__codelineno-4-1" href="#__codelineno-4-1"></a>docker<span class="w"> </span>build<span class="w"> </span>-t<span class="w"> </span>&lt;new-workflows-manager-image&gt;<span class="w"> </span>.
-</span></code></pre></div>
-<p>Replace <code>&lt;new-workflows-manager-image&gt;</code> with the name you want to give to the new Docker image. You can then use this
-image to run the workflows in a Docker container.</p>
 
 
 
@@ -1235,10 +1379,10 @@ image to run the workflows in a Docker container.</p>
     </div>
     
     
-    <script id="__config" type="application/json">{"base": "../..", "features": ["header.autolink", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "toc.integrate", "toc.follow", "content.tabs.link", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate"], "search": "../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
+    <script id="__config" type="application/json">{"base": "../../../..", "features": ["header.autolink", "navigation.tracking", "navigation.tabs", "navigation.tabs.sticky", "toc.integrate", "toc.follow", "content.tabs.link", "content.action.edit", "content.action.view", "content.code.copy", "content.code.annotate"], "search": "../../../../assets/javascripts/workers/search.6ce7567c.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": {"provider": "mike"}}</script>
     
     
-      <script src="../../assets/javascripts/bundle.83f73b43.min.js"></script>
+      <script src="../../../../assets/javascripts/bundle.83f73b43.min.js"></script>
       
     
   <script id="init-glightbox">const lightbox = GLightbox({"touchNavigation": true, "loop": false, "zoomable": true, "draggable": true, "openEffect": "zoom", "closeEffect": "zoom", "slideEffect": "slide"});
