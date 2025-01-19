@@ -192,3 +192,74 @@ Here is an example of a workflow `embedded-workflow` with the step that executes
 In this example the `Execute simple workflow` step is a workflow step that executes the `simple-workflow` workflow. It
 has its own set of parameters defined under the `parameters` key. This will automatically inject the parameters into the
 steps that are executed in the workflow.
+
+## Template Data
+
+You can also use template data in the workflow configuration. The template data can be used to inject dynamic values
+into the workflow configuration. Currently, the template data is supported only for the following fields:
+
+- `name`
+- `step`
+- `workflow`
+- `parameters[*].value`
+
+To inject the template data into the attribute, you need to define a new variable in the `parameters`. After that you 
+can use the variable in the attribute by using the `{ variable_name }` syntax. Any variable of the type other than `str`
+will be converted to a string before injecting it into the attribute, except of `parameters[*].value` that preserves the
+original type. However, there is one exception: if the template variable is a string that contains additional text, it
+will be treated as a string and will not be converted.
+
+**Note:** To use `{` and `}` characters in the value of the parameter, you need to escape them by using double brackets
+`{{` and `}}`.
+
+**Example:** let's say you have a parameter `age` with the value `18` that you want to use in the `message` variable.
+You can use the `age` variable in the `message` in the following way: `"Age, { age }"`, that will cause that value
+assigned to message will be of `str` type, but if you use `"{ age }"` as a value for `message` variable, it will be
+converted to `str`.
+
+Here is an example of a workflow that uses the template data:
+
+=== "YAML"
+
+    ```yaml title="workflows.yaml"
+    parameters:
+      - name: name
+        value: "John Doe"
+    workflows:
+      template-workflow:
+        steps:
+          - name: Say hello
+            step: console-output
+            parameters:
+              - name: message
+                value: "Hello, { name }!"
+    ```
+
+=== "JSON"
+
+    ```json title="workflows.json"
+    {
+      "parameters": [
+        {
+          "name": "name",
+          "value": "John Doe"
+        }
+      ],
+      "workflows": {
+        "template-workflow": {
+          "steps": [
+            {
+              "name": "Say hello",
+              "step": "console-output",
+              "parameters": [
+                {
+                  "name": "message",
+                  "value": "Hello, { name }!"
+                }
+              ]
+            }
+          ]
+        }
+      }
+    }
+    ```

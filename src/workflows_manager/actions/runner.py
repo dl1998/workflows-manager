@@ -16,6 +16,7 @@ from workflows_manager import workflow
 from workflows_manager.actions.misc import InstanceParameters
 from workflows_manager.configuration import Workflow, Parameters, StepType, StepUnion
 from workflows_manager.exceptions import MissingParameter
+from workflows_manager.utils.reference_resolver import ReferenceResolver
 from workflows_manager.workflow import StepsInformation, StepStatus, StepInformation, StepPath, WorkflowContext
 
 
@@ -266,6 +267,42 @@ class Runner:
             if thread.exception:
                 raise thread.exception
 
+    def __update_step_name(self, step: configuration.Step, step_path: StepPath, parameters: Dict[str, Any]):
+        """
+        A method to update the title of the step.
+
+        :param step: The step configuration.
+        :type step: configuration.Step
+        :param step_path: The path to the step.
+        :type step_path: StepPath
+        :param parameters: The parameters provided to the step.
+        :type parameters: Dict[str, Any]
+        """
+        step_information = self.__workflow_context.get_step_information(step_path)
+        processed_step_name = str(ReferenceResolver(parameters).resolve_element(step_information.path.name))
+        step_information.path.name = processed_step_name
+        step.name = processed_step_name
+
+    def __update_template_parameters(self, step: configuration.Step, step_path: StepPath, parameters: Dict[str, Any]):
+        """
+        A method to update the title of the step.
+
+        :param step: The step configuration.
+        :type step: configuration.Step
+        :param step_path: The path to the step.
+        :type step_path: StepPath
+        :param parameters: The parameters provided to the step.
+        :type parameters: Dict[str, Any]
+        """
+        reference_resolver = ReferenceResolver(parameters.copy())
+        parameters = reference_resolver.resolve()
+        self.__update_step_name(step, step_path, parameters)
+        if isinstance(step, configuration.NormalStep):
+            step.id = str(ReferenceResolver(parameters).resolve_element(step.id))
+        if isinstance(step, configuration.WorkflowStep):
+            step.workflow = str(ReferenceResolver(parameters).resolve_element(step.workflow))
+        return parameters
+
     def __run_step(self, step: StepUnion, parent_step_path: Optional[StepPath], parameters: Dict[str, Any]):
         """
         A method to run a step.
@@ -282,6 +319,7 @@ class Runner:
         step_status.status = StepStatus.RUNNING
         evaluated_parameters = self.__evaluate_parameters(step.parameters, parameters)
         try:
+            evaluated_parameters = self.__update_template_parameters(step, step_path, evaluated_parameters)
             if step.type == StepType.NORMAL:
                 self.__run_normal_step(step, step_status, evaluated_parameters)
             elif step.type == StepType.WORKFLOW:

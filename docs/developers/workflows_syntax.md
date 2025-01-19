@@ -64,9 +64,9 @@ describe the structure of each file format.
 ## `parameters[*].value`
 ---
 
-| Required |                           Type                            | Default | Description                                                                  |
-|:--------:|:---------------------------------------------------------:|---------|------------------------------------------------------------------------------|
-|    No    | string \| integer \| number \| boolean \| array \| object |         | Value of the parameter. Can be omitted, if `from_context` has been provided. |
+| Required |                           Type                            | Default | Description                                                                                                                                                                                    |
+|:--------:|:---------------------------------------------------------:|---------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|    No    | string \| integer \| number \| boolean \| array \| object |         | Value of the parameter. Can be omitted, if `from_context` has been provided. This attribute supports templating, you could inject value from another parameter using `{variable_name}` syntax. |
 
 !!! example "Example"
 
@@ -315,9 +315,9 @@ describe the structure of each file format.
 ## `workflows.<workflow>.steps[*].name`
 ---
 
-| Required |  Type  | Default | Description                                                    |
-|:--------:|:------:|---------|----------------------------------------------------------------|
-|   Yes    | string |         | Name of the step. It must be unique within the workflow scope. |
+| Required |  Type  | Default | Description                                                                                                                                                                      |
+|:--------:|:------:|---------|----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|   Yes    | string |         | Name of the step. It must be unique within the workflow scope. This attribute supports templating, you could inject value from another parameter using `{variable_name}` syntax. |
 
 !!! example "Example"
 
@@ -349,9 +349,9 @@ describe the structure of each file format.
 ## `workflows.<workflow>.steps[*].step`
 ---
 
-| Required |  Type  | Default | Description                                                                                      |
-|:--------:|:------:|---------|--------------------------------------------------------------------------------------------------|
-|   Yes    | string |         | Name of the step registered in the code that will be executed. It is required for `normal` type. |
+| Required |  Type  | Default | Description                                                                                                                                                                                                        |
+|:--------:|:------:|---------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|   Yes    | string |         | Name of the step registered in the code that will be executed. It is required for `normal` type. This attribute supports templating, you could inject value from another parameter using `{variable_name}` syntax. |
 
 !!! example "Example"
 
@@ -419,9 +419,9 @@ describe the structure of each file format.
 ## `workflows.<workflow>.steps[*].workflow`
 ---
 
-| Required |  Type  | Default | Description                                                                                     |
-|:--------:|:------:|---------|-------------------------------------------------------------------------------------------------|
-|    No    | string |         | Name of the workflow, it shall exist in the workflows file. It is required for `workflow` type. |
+| Required |  Type  | Default | Description                                                                                                                                                                                                       |
+|:--------:|:------:|---------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
+|    No    | string |         | Name of the workflow, it shall exist in the workflows file. It is required for `workflow` type. This attribute supports templating, you could inject value from another parameter using `{variable_name}` syntax. |
 
 !!! example "Example"
 
