@@ -146,7 +146,7 @@ jobs:
           VERSION=$(hatch version)
           echo "VERSION=$VERSION" >> $GITHUB_ENV
       - name: Get creation date
-        id: get_version
+        id: get_creation_date
         run: |
           echo "CREATION_DATE=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> $GITHUB_ENV
       - name: Log in to Docker Hub
