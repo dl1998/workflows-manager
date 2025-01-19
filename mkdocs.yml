@@ -114,6 +114,14 @@ nav:
     - Architecture: developers/architecture.md
     - "Workflows Syntax": developers/workflows_syntax.md
     - Modules:
+      - "Module: actions":
+        - "Module: list": developers/modules/actions/list.md
+        - "Module: misc": developers/modules/actions/misc.md
+        - "Module: runner": developers/modules/actions/runner.md
+        - "Module: validator": developers/modules/actions/validator.md
+      - "Module: utils":
+        - "Module: reference_resolver": developers/modules/utils/reference_resolver.md
+      - "Module: command_arguments": developers/modules/command_arguments.md
       - "Module: configuration": developers/modules/configuration.md
       - "Module: dispatcher": developers/modules/dispatcher.md
       - "Module: exceptions": developers/modules/exceptions.md
