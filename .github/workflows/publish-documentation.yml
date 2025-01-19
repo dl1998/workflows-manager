@@ -34,13 +34,11 @@ jobs:
         id: check_docs
         run: |
           FORCE_UPDATE=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_update == 'true' }}
-          if [ "$FORCE_UPDATE" != "true" ]; then
-            VERSION_URL="https://dl1998.github.io/workflows-manager/${{ env.WORKFLOWS_VERSION }}/"
-            HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" "$VERSION_URL")
-            if [ "$HTTP_STATUS" -eq 301 ]; then
-              echo "Documentation version ${{ env.WORKFLOWS_VERSION }} already exists."
-              exit 1
-            fi
+          VERSION_URL="https://dl1998.github.io/workflows-manager/${{ env.WORKFLOWS_VERSION }}/"
+          HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" "$VERSION_URL")
+          if [ "$HTTP_STATUS" -eq 301 ] && [ "$FORCE_UPDATE" != "true" ]; then
+            echo "Documentation version ${{ env.WORKFLOWS_VERSION }} already exists and force update is not enabled."
+            exit 1
           fi
       - name: Set User
         run: |
