@@ -841,111 +841,6 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#workflows_manager.dispatcher.ExceptionThread" class="md-nav__link">
-    <span class="md-ellipsis">
-      ExceptionThread
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="ExceptionThread">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#workflows_manager.dispatcher.ExceptionThread.run" class="md-nav__link">
-    <span class="md-ellipsis">
-      run
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#workflows_manager.dispatcher.InstanceParameter" class="md-nav__link">
-    <span class="md-ellipsis">
-      InstanceParameter
-    </span>
-  </a>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#workflows_manager.dispatcher.InstanceParameters" class="md-nav__link">
-    <span class="md-ellipsis">
-      InstanceParameters
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="InstanceParameters">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#workflows_manager.dispatcher.InstanceParameters.from_step" class="md-nav__link">
-    <span class="md-ellipsis">
-      from_step
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#workflows_manager.dispatcher.Runner" class="md-nav__link">
-    <span class="md-ellipsis">
-      Runner
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Runner">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#workflows_manager.dispatcher.Runner.run" class="md-nav__link">
-    <span class="md-ellipsis">
-      run
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
-  <a href="#workflows_manager.dispatcher.Validator" class="md-nav__link">
-    <span class="md-ellipsis">
-      Validator
-    </span>
-  </a>
-  
-    <nav class="md-nav" aria-label="Validator">
-      <ul class="md-nav__list">
-        
-          <li class="md-nav__item">
-  <a href="#workflows_manager.dispatcher.Validator.validate" class="md-nav__link">
-    <span class="md-ellipsis">
-      validate
-    </span>
-  </a>
-  
-</li>
-        
-      </ul>
-    </nav>
-  
-</li>
-      
-        <li class="md-nav__item">
   <a href="#workflows_manager.dispatcher.WorkflowDispatcher" class="md-nav__link">
     <span class="md-ellipsis">
       WorkflowDispatcher
@@ -959,6 +854,15 @@
   <a href="#workflows_manager.dispatcher.WorkflowDispatcher.dispatch" class="md-nav__link">
     <span class="md-ellipsis">
       dispatch
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflows_manager.dispatcher.WorkflowDispatcher.list" class="md-nav__link">
+    <span class="md-ellipsis">
+      list
     </span>
   </a>
   
@@ -1430,610 +1334,6 @@
 
 
 
-<h2 id="workflows_manager.dispatcher.ExceptionThread" class="doc doc-heading">
-            <code>ExceptionThread</code>
-
-
-<a href="#workflows_manager.dispatcher.ExceptionThread" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents ">
-            <p class="doc doc-class-bases">
-              Bases: <code><span title="threading.Thread">Thread</span></code></p>
-
-
-        <p>A class to run a thread that can catch exceptions.</p>
-
-
-<p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="workflows_manager.dispatcher.ExceptionThread.exception">exception</span></code></td>
-            <td>
-                  <code><span title="typing.Optional">Optional</span>[Exception]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The exception caught by the thread.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-
-
-
-
-
-
-
-  <div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="workflows_manager.dispatcher.ExceptionThread.run" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">run</span><span class="p">()</span></code>
-
-<a href="#workflows_manager.dispatcher.ExceptionThread.run" class="headerlink" title="Permanent link">&para;</a></h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>A method to run the thread and catch exceptions.</p>
-
-    </div>
-
-</div>
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="workflows_manager.dispatcher.InstanceParameter" class="doc doc-heading">
-            <code>InstanceParameter</code>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
-  </span>
-
-<a href="#workflows_manager.dispatcher.InstanceParameter" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents ">
-
-
-        <p>A class to represent the parameter of the step instance with its default value and type.</p>
-
-
-<p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="workflows_manager.dispatcher.InstanceParameter.name">name</span></code></td>
-            <td>
-                  <code>str</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The name of the parameter.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="workflows_manager.dispatcher.InstanceParameter.value">value</span></code></td>
-            <td>
-                  <code><span title="typing.Any">Any</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The default value of the parameter.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="workflows_manager.dispatcher.InstanceParameter.type">type</span></code></td>
-            <td>
-                  <code><span title="typing.Type">Type</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The type of the parameter.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-
-
-
-
-
-
-
-  <div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="workflows_manager.dispatcher.InstanceParameters" class="doc doc-heading">
-            <code>InstanceParameters</code>
-
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
-  </span>
-
-<a href="#workflows_manager.dispatcher.InstanceParameters" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents ">
-
-
-        <p>A class to represent the parameters of the step instance with their default values and types.</p>
-
-
-<p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="workflows_manager.dispatcher.InstanceParameters.parameters">parameters</span></code></td>
-            <td>
-                  <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="workflows_manager.dispatcher.InstanceParameter" href="#workflows_manager.dispatcher.InstanceParameter">InstanceParameter</a>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The parameters of the step instance.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-
-
-
-
-
-
-
-  <div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="workflows_manager.dispatcher.InstanceParameters.from_step" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">from_step</span><span class="p">(</span><span class="n">step</span><span class="p">)</span></code>
-
-  <span class="doc doc-labels">
-      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
-  </span>
-
-<a href="#workflows_manager.dispatcher.InstanceParameters.from_step" class="headerlink" title="Permanent link">&para;</a></h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>A method to create an instance of the class from the step instance.</p>
-
-
-<p><span class="doc-section-title">Parameters:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-          <th>Default</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                <code>step</code>
-            </td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="workflows_manager.workflow.Step" href="../workflow/#workflows_manager.workflow.Step">Step</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The step instance.</p>
-              </div>
-            </td>
-            <td>
-                <em>required</em>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-    <p><span class="doc-section-title">Returns:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code>InstanceParameters</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The instance of the class created from the step instance.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-    </div>
-
-</div>
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="workflows_manager.dispatcher.Runner" class="doc doc-heading">
-            <code>Runner</code>
-
-
-<a href="#workflows_manager.dispatcher.Runner" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents ">
-
-
-        <p>A class to run the workflow.</p>
-
-
-<p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="workflows_manager.dispatcher.Runner.logger">logger</span></code></td>
-            <td>
-                  <code><span title="logging.Logger">Logger</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Workflow engine logger.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="workflows_manager.dispatcher.Runner.workflows_configuration">workflows_configuration</span></code></td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="workflows_manager.configuration.Configuration" href="../configuration/#workflows_manager.configuration.Configuration">Configuration</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The configuration of the workflows.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="workflows_manager.dispatcher.Runner.workflow_name">workflow_name</span></code></td>
-            <td>
-                  <code>str</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The name of the workflow to run.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="workflows_manager.dispatcher.Runner.status_file">status_file</span></code></td>
-            <td>
-                  <code><span title="typing.Optional">Optional</span>[<span title="pathlib.Path">Path</span>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The path to the file where the statuses of the particular steps will be stored.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="workflows_manager.dispatcher.Runner.parameters">parameters</span></code></td>
-            <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The parameters provided to the workflow from command line arguments.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="workflows_manager.dispatcher.Runner.__workflow_context">__workflow_context</span></code></td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="workflows_manager.workflow.WorkflowContext" href="../workflow/#workflows_manager.workflow.WorkflowContext">WorkflowContext</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The context of the workflow.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-
-
-
-
-
-
-
-  <div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="workflows_manager.dispatcher.Runner.run" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">run</span><span class="p">()</span></code>
-
-<a href="#workflows_manager.dispatcher.Runner.run" class="headerlink" title="Permanent link">&para;</a></h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>A method to run the workflow.</p>
-
-    </div>
-
-</div>
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
-<h2 id="workflows_manager.dispatcher.Validator" class="doc doc-heading">
-            <code>Validator</code>
-
-
-<a href="#workflows_manager.dispatcher.Validator" class="headerlink" title="Permanent link">&para;</a></h2>
-
-
-    <div class="doc doc-contents ">
-
-
-        <p>A class to validate the workflow's configuration.</p>
-
-
-<p><span class="doc-section-title">Attributes:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Name</th>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td><code><span title="workflows_manager.dispatcher.Validator.logger">logger</span></code></td>
-            <td>
-                  <code><span title="logging.Logger">Logger</span></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Workflow engine logger.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="workflows_manager.dispatcher.Validator.workflows_configuration">workflows_configuration</span></code></td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="workflows_manager.configuration.Configuration" href="../configuration/#workflows_manager.configuration.Configuration">Configuration</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The configuration of the workflows.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="workflows_manager.dispatcher.Validator.workflow_name">workflow_name</span></code></td>
-            <td>
-                  <code>str</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The name of the workflow to run.</p>
-              </div>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td><code><span title="workflows_manager.dispatcher.Validator.parameters">parameters</span></code></td>
-            <td>
-                  <code><span title="typing.Dict">Dict</span>[str, <span title="typing.Any">Any</span>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>The parameters provided to the workflow from command line arguments.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-
-
-
-
-
-
-
-
-  <div class="doc doc-children">
-
-
-
-
-
-
-
-
-
-<div class="doc doc-object doc-function">
-
-
-<h3 id="workflows_manager.dispatcher.Validator.validate" class="doc doc-heading">
-            <code class="highlight language-python"><span class="n">validate</span><span class="p">()</span></code>
-
-<a href="#workflows_manager.dispatcher.Validator.validate" class="headerlink" title="Permanent link">&para;</a></h3>
-
-
-    <div class="doc doc-contents ">
-
-        <p>A method to validate the configuration provided to the dispatcher.</p>
-
-
-    <p><span class="doc-section-title">Returns:</span></p>
-    <table>
-      <thead>
-        <tr>
-          <th>Type</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-          <tr class="doc-section-item">
-            <td>
-                  <code>bool</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>True if the configuration is valid, otherwise False.</p>
-              </div>
-            </td>
-          </tr>
-      </tbody>
-    </table>
-
-    </div>
-
-</div>
-
-
-
-  </div>
-
-    </div>
-
-</div>
-
-<div class="doc doc-object doc-class">
-
-
-
 <h2 id="workflows_manager.dispatcher.WorkflowDispatcher" class="doc doc-heading">
             <code>WorkflowDispatcher</code>
 
@@ -2184,6 +1484,23 @@
 <div class="doc doc-object doc-function">
 
 
+<h3 id="workflows_manager.dispatcher.WorkflowDispatcher.list" class="doc doc-heading">
+            <code class="highlight language-python"><span class="nb">list</span><span class="p">()</span></code>
+
+<a href="#workflows_manager.dispatcher.WorkflowDispatcher.list" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>A method to list the workflows.</p>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
 <h3 id="workflows_manager.dispatcher.WorkflowDispatcher.run" class="doc doc-heading">
             <code class="highlight language-python"><span class="n">run</span><span class="p">()</span></code>
 
@@ -2287,6 +1604,29 @@
             <td>
               <div class="doc-md-description">
                 <p>WorkflowDispatcher instance.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+<p><span class="doc-section-title">Raises:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code>InvalidConfiguration</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>If the workflow does not exist in the configuration.</p>
               </div>
             </td>
           </tr>

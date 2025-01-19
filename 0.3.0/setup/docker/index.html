@@ -926,17 +926,17 @@ By default, the container will look for the steps and workflows in the <code>/ap
 <div class="tabbed-set tabbed-alternate" data-tabs="1:2"><input checked="checked" id="__tabbed_1_1" name="__tabbed_1" type="radio" /><input id="__tabbed_1_2" name="__tabbed_1" type="radio" /><div class="tabbed-labels"><label for="__tabbed_1_1">latest</label><label for="__tabbed_1_2">specific version</label></div>
 <div class="tabbed-content">
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span>&lt;path<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>workflow<span class="w"> </span>and<span class="w"> </span>steps<span class="w"> </span>on<span class="w"> </span><span class="nb">local</span><span class="w"> </span>machine&gt;:/app<span class="w"> </span>dl1998/workflows-manager:latest<span class="w"> </span>run<span class="w"> </span>&lt;workflow-name&gt;
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-0-1"><a id="__codelineno-0-1" name="__codelineno-0-1" href="#__codelineno-0-1"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span>&lt;path<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>workflow<span class="w"> </span>and<span class="w"> </span>steps<span class="w"> </span>on<span class="w"> </span><span class="nb">local</span><span class="w"> </span>machine&gt;:/app<span class="w"> </span>dl1998/workflows-manager:latest<span class="w"> </span>run
 </span></code></pre></div>
 </div>
 <div class="tabbed-block">
-<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span>&lt;path<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>workflow<span class="w"> </span>and<span class="w"> </span>steps<span class="w"> </span>on<span class="w"> </span><span class="nb">local</span><span class="w"> </span>machine&gt;:/app<span class="w"> </span>dl1998/workflows-manager:0.3.0<span class="w"> </span>run<span class="w"> </span>&lt;workflow-name&gt;
+<div class="language-bash highlight"><pre><span></span><code><span id="__span-1-1"><a id="__codelineno-1-1" name="__codelineno-1-1" href="#__codelineno-1-1"></a>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>-v<span class="w"> </span>&lt;path<span class="w"> </span>to<span class="w"> </span>the<span class="w"> </span>workflow<span class="w"> </span>and<span class="w"> </span>steps<span class="w"> </span>on<span class="w"> </span><span class="nb">local</span><span class="w"> </span>machine&gt;:/app<span class="w"> </span>dl1998/workflows-manager:0.3.0<span class="w"> </span>run
 </span></code></pre></div>
 </div>
 </div>
 </div>
 <p>Replace <code>&lt;path to the workflow and steps on local machine&gt;</code> with the path to the directory containing the workflows and
-steps on your local machine, and <code>&lt;workflow-name&gt;</code> with the name of the workflow you want to run.</p>
+steps on your local machine.</p>
 </div>
 <p>If you have your own Python dependencies that you want to use in the workflows, you can create a custom Docker image
 based on the workflows-manager image. You can create a <code>Dockerfile</code> in the same directory as your workflows and steps

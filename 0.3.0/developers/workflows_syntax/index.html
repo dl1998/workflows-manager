@@ -1209,7 +1209,7 @@ describe the structure of each file format.</p>
 <td style="text-align: center;">No</td>
 <td style="text-align: center;">string | integer | number | boolean | array | object</td>
 <td></td>
-<td>Value of the parameter. Can be omitted, if <code>from_context</code> has been provided.</td>
+<td>Value of the parameter. Can be omitted, if <code>from_context</code> has been provided. This attribute supports templating, you could inject value from another parameter using <code>{variable_name}</code> syntax.</td>
 </tr>
 </tbody>
 </table>
@@ -1556,7 +1556,7 @@ describe the structure of each file format.</p>
 <td style="text-align: center;">Yes</td>
 <td style="text-align: center;">string</td>
 <td></td>
-<td>Name of the step. It must be unique within the workflow scope.</td>
+<td>Name of the step. It must be unique within the workflow scope. This attribute supports templating, you could inject value from another parameter using <code>{variable_name}</code> syntax.</td>
 </tr>
 </tbody>
 </table>
@@ -1606,7 +1606,7 @@ describe the structure of each file format.</p>
 <td style="text-align: center;">Yes</td>
 <td style="text-align: center;">string</td>
 <td></td>
-<td>Name of the step registered in the code that will be executed. It is required for <code>normal</code> type.</td>
+<td>Name of the step registered in the code that will be executed. It is required for <code>normal</code> type. This attribute supports templating, you could inject value from another parameter using <code>{variable_name}</code> syntax.</td>
 </tr>
 </tbody>
 </table>
@@ -1708,7 +1708,7 @@ describe the structure of each file format.</p>
 <td style="text-align: center;">No</td>
 <td style="text-align: center;">string</td>
 <td></td>
-<td>Name of the workflow, it shall exist in the workflows file. It is required for <code>workflow</code> type.</td>
+<td>Name of the workflow, it shall exist in the workflows file. It is required for <code>workflow</code> type. This attribute supports templating, you could inject value from another parameter using <code>{variable_name}</code> syntax.</td>
 </tr>
 </tbody>
 </table>

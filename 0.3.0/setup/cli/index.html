@@ -591,6 +591,15 @@
   
 </li>
         
+          <li class="md-nav__item">
+  <a href="#parser-list" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parser: list
+    </span>
+  </a>
+  
+</li>
+        
       </ul>
     </nav>
   
@@ -1017,7 +1026,7 @@
 <td><code>action</code></td>
 <td style="text-align: center;"></td>
 <td style="text-align: center;"><code>true</code></td>
-<td style="text-align: center;"><code>version</code> | <code>validate</code> | <code>run</code></td>
+<td style="text-align: center;"><code>version</code> | <code>validate</code> | <code>run</code> | <code>list</code></td>
 <td>Subcommands for managing workflows.</td>
 </tr>
 </tbody>
@@ -1278,11 +1287,33 @@
 <td>Dictionary parameter for the workflow (JSON format). Format: <code>&lt;name&gt;:&lt;value&gt;</code>.</td>
 </tr>
 <tr>
-<td><code>workflow_name</code></td>
-<td style="text-align: center;"></td>
-<td style="text-align: center;"></td>
+<td><code>--workflow-name</code> | <code>-w</code></td>
+<td style="text-align: center;"><code>default</code></td>
+<td style="text-align: center;"><code>false</code></td>
 <td style="text-align: center;"></td>
 <td>Name of the workflow to run.</td>
+</tr>
+</tbody>
+</table>
+<h3 id="parser-list">Parser: <code>list</code><a class="headerlink" href="#parser-list" title="Permanent link">&para;</a></h3>
+<p>This parser lists all available workflows.</p>
+<table>
+<thead>
+<tr>
+<th>Argument</th>
+<th style="text-align: center;">Default</th>
+<th style="text-align: center;">Required</th>
+<th style="text-align: center;">Choices</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>--configuration-file</code> | <code>-c</code></td>
+<td style="text-align: center;"></td>
+<td style="text-align: center;"><code>false</code></td>
+<td style="text-align: center;"></td>
+<td>Path to the configuration file with workflows and steps. If not provided, then it will try to search for <code>workflows.yaml</code> or <code>workflows.json</code> in the current working directory.</td>
 </tr>
 </tbody>
 </table>

@@ -838,6 +838,72 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#workflows_manager.configuration.NormalStep" class="md-nav__link">
+    <span class="md-ellipsis">
+      NormalStep
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="NormalStep">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#workflows_manager.configuration.NormalStep.from_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      from_dict
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflows_manager.configuration.NormalStep.validate_all" class="md-nav__link">
+    <span class="md-ellipsis">
+      validate_all
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflows_manager.configuration.ParallelStep" class="md-nav__link">
+    <span class="md-ellipsis">
+      ParallelStep
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="ParallelStep">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#workflows_manager.configuration.ParallelStep.from_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      from_dict
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflows_manager.configuration.ParallelStep.validate_all" class="md-nav__link">
+    <span class="md-ellipsis">
+      validate_all
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#workflows_manager.configuration.Parameter" class="md-nav__link">
     <span class="md-ellipsis">
       Parameter
@@ -1014,6 +1080,39 @@
         
           <li class="md-nav__item">
   <a href="#workflows_manager.configuration.Workflow.validate_all" class="md-nav__link">
+    <span class="md-ellipsis">
+      validate_all
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#workflows_manager.configuration.WorkflowStep" class="md-nav__link">
+    <span class="md-ellipsis">
+      WorkflowStep
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="WorkflowStep">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#workflows_manager.configuration.WorkflowStep.from_dict" class="md-nav__link">
+    <span class="md-ellipsis">
+      from_dict
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#workflows_manager.configuration.WorkflowStep.validate_all" class="md-nav__link">
     <span class="md-ellipsis">
       validate_all
     </span>
@@ -1585,6 +1684,476 @@
 
 
 
+<h2 id="workflows_manager.configuration.NormalStep" class="doc doc-heading">
+            <code>NormalStep</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#workflows_manager.configuration.NormalStep" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="workflows_manager.configuration.Step" href="#workflows_manager.configuration.Step">Step</a></code></p>
+
+
+        <p>Class that represents a normal step in the workflow.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>name</code>
+            </td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Name of the step.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>parameters</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="workflows_manager.configuration.Parameters" href="#workflows_manager.configuration.Parameters">Parameters</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of step parameters.</p>
+              </div>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="workflows_manager.configuration.Parameters" href="#workflows_manager.configuration.Parameters">Parameters</a>()</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>stop_on_error</code>
+            </td>
+            <td>
+                  <code>bool</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Flag that indicates whether the workflow should stop on error.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>id</code>
+            </td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[str]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>ID of the step (name of the step used when registering the step).</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>capture_stdout</code>
+            </td>
+            <td>
+                  <code>bool</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Flag that indicates whether the stdout should be captured.</p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>capture_stderr</code>
+            </td>
+            <td>
+                  <code>bool</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Flag that indicates whether the stderr should be captured.</p>
+              </div>
+            </td>
+            <td>
+                  <code>False</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="workflows_manager.configuration.NormalStep.from_dict" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#workflows_manager.configuration.NormalStep.from_dict" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create a new instance of the class from the dictionary.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>data</code>
+            </td>
+            <td>
+                  <code>dict</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dictionary with step data.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code>Step</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>New instance of the class.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="workflows_manager.configuration.NormalStep.validate_all" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">validate_all</span><span class="p">()</span></code>
+
+<a href="#workflows_manager.configuration.NormalStep.validate_all" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Validate the step. Check if the type is valid and if the step has all required attributes.</p>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="workflows_manager.configuration.ParallelStep" class="doc doc-heading">
+            <code>ParallelStep</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#workflows_manager.configuration.ParallelStep" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="workflows_manager.configuration.Step" href="#workflows_manager.configuration.Step">Step</a></code></p>
+
+
+        <p>Class that represents a parallel step in the workflow.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>name</code>
+            </td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Name of the step.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>parameters</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="workflows_manager.configuration.Parameters" href="#workflows_manager.configuration.Parameters">Parameters</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of step parameters.</p>
+              </div>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="workflows_manager.configuration.Parameters" href="#workflows_manager.configuration.Parameters">Parameters</a>()</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>stop_on_error</code>
+            </td>
+            <td>
+                  <code>bool</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Flag that indicates whether the workflow should stop on error.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>parallels</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="workflows_manager.configuration.Steps" href="#workflows_manager.configuration.Steps">Steps</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of parallel steps.</p>
+              </div>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="workflows_manager.configuration.Steps" href="#workflows_manager.configuration.Steps">Steps</a>()</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="workflows_manager.configuration.ParallelStep.from_dict" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#workflows_manager.configuration.ParallelStep.from_dict" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create a new instance of the class from the dictionary.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>data</code>
+            </td>
+            <td>
+                  <code>dict</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dictionary with step data.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code>Step</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>New instance of the class.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="workflows_manager.configuration.ParallelStep.validate_all" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">validate_all</span><span class="p">()</span></code>
+
+<a href="#workflows_manager.configuration.ParallelStep.validate_all" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Validate the step. Check if the type is valid and if the step has all required attributes.</p>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
 <h2 id="workflows_manager.configuration.Parameter" class="doc doc-heading">
             <code>Parameter</code>
 
@@ -2024,102 +2593,6 @@
           </tr>
           <tr class="doc-section-item">
             <td>
-                <code>id</code>
-            </td>
-            <td>
-                  <code><span title="typing.Optional">Optional</span>[str]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>ID of the step (name of the step used when registering the step).</p>
-              </div>
-            </td>
-            <td>
-                  <code>None</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>workflow</code>
-            </td>
-            <td>
-                  <code><span title="typing.Optional">Optional</span>[str]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Name of the workflow that should be executed.</p>
-              </div>
-            </td>
-            <td>
-                  <code>None</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>parallels</code>
-            </td>
-            <td>
-                  <code><span title="typing.Optional">Optional</span>[<a class="autorefs autorefs-internal" title="workflows_manager.configuration.Steps" href="#workflows_manager.configuration.Steps">Steps</a>]</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>List of parallel steps.</p>
-              </div>
-            </td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="workflows_manager.configuration.Steps" href="#workflows_manager.configuration.Steps">Steps</a>()</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>type</code>
-            </td>
-            <td>
-                  <code><a class="autorefs autorefs-internal" title="workflows_manager.configuration.StepType" href="#workflows_manager.configuration.StepType">StepType</a></code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Type of the step.</p>
-              </div>
-            </td>
-            <td>
-                  <code><span title="workflows_manager.configuration.StepType.NORMAL">NORMAL</span></code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>capture_stdout</code>
-            </td>
-            <td>
-                  <code>bool</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Flag that indicates whether the stdout should be captured.</p>
-              </div>
-            </td>
-            <td>
-                  <code>False</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
-                <code>capture_stderr</code>
-            </td>
-            <td>
-                  <code>bool</code>
-            </td>
-            <td>
-              <div class="doc-md-description">
-                <p>Flag that indicates whether the stderr should be captured.</p>
-              </div>
-            </td>
-            <td>
-                  <code>False</code>
-            </td>
-          </tr>
-          <tr class="doc-section-item">
-            <td>
                 <code>parameters</code>
             </td>
             <td>
@@ -2450,7 +2923,7 @@
                 <code>elements</code>
             </td>
             <td>
-                  <code><span title="typing.List">List</span>[<a class="autorefs autorefs-internal" title="workflows_manager.configuration.Step" href="#workflows_manager.configuration.Step">Step</a>]</code>
+                  <code><span title="typing.List">List</span>[<span title="typing.Union">Union</span>[<a class="autorefs autorefs-internal" title="workflows_manager.configuration.NormalStep" href="#workflows_manager.configuration.NormalStep">NormalStep</a>, <a class="autorefs autorefs-internal" title="workflows_manager.configuration.WorkflowStep" href="#workflows_manager.configuration.WorkflowStep">WorkflowStep</a>, <a class="autorefs autorefs-internal" title="workflows_manager.configuration.ParallelStep" href="#workflows_manager.configuration.ParallelStep">ParallelStep</a>]]</code>
             </td>
             <td>
               <div class="doc-md-description">
@@ -2770,6 +3243,225 @@
     <div class="doc doc-contents ">
 
         <p>Validate the workflow. Check if the name is valid and if all steps and parameters are valid.</p>
+
+    </div>
+
+</div>
+
+
+
+  </div>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-class">
+
+
+
+<h2 id="workflows_manager.configuration.WorkflowStep" class="doc doc-heading">
+            <code>WorkflowStep</code>
+
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-dataclass"><code>dataclass</code></small>
+  </span>
+
+<a href="#workflows_manager.configuration.WorkflowStep" class="headerlink" title="Permanent link">&para;</a></h2>
+
+
+    <div class="doc doc-contents ">
+            <p class="doc doc-class-bases">
+              Bases: <code><a class="autorefs autorefs-internal" title="workflows_manager.configuration.Step" href="#workflows_manager.configuration.Step">Step</a></code></p>
+
+
+        <p>Class that represents a workflow step in the workflow.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>name</code>
+            </td>
+            <td>
+                  <code>str</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Name of the step.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>parameters</code>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="workflows_manager.configuration.Parameters" href="#workflows_manager.configuration.Parameters">Parameters</a></code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>List of step parameters.</p>
+              </div>
+            </td>
+            <td>
+                  <code><a class="autorefs autorefs-internal" title="workflows_manager.configuration.Parameters" href="#workflows_manager.configuration.Parameters">Parameters</a>()</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>stop_on_error</code>
+            </td>
+            <td>
+                  <code>bool</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Flag that indicates whether the workflow should stop on error.</p>
+              </div>
+            </td>
+            <td>
+                  <code>True</code>
+            </td>
+          </tr>
+          <tr class="doc-section-item">
+            <td>
+                <code>workflow</code>
+            </td>
+            <td>
+                  <code><span title="typing.Optional">Optional</span>[str]</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Name of the workflow that should be executed.</p>
+              </div>
+            </td>
+            <td>
+                  <code>None</code>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+
+
+
+
+
+
+
+  <div class="doc doc-children">
+
+
+
+
+
+
+
+
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="workflows_manager.configuration.WorkflowStep.from_dict" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">from_dict</span><span class="p">(</span><span class="n">data</span><span class="p">)</span></code>
+
+  <span class="doc doc-labels">
+      <small class="doc doc-label doc-label-classmethod"><code>classmethod</code></small>
+  </span>
+
+<a href="#workflows_manager.configuration.WorkflowStep.from_dict" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Create a new instance of the class from the dictionary.</p>
+
+
+<p><span class="doc-section-title">Parameters:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Type</th>
+          <th>Description</th>
+          <th>Default</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                <code>data</code>
+            </td>
+            <td>
+                  <code>dict</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>Dictionary with step data.</p>
+              </div>
+            </td>
+            <td>
+                <em>required</em>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+
+    <p><span class="doc-section-title">Returns:</span></p>
+    <table>
+      <thead>
+        <tr>
+          <th>Type</th>
+          <th>Description</th>
+        </tr>
+      </thead>
+      <tbody>
+          <tr class="doc-section-item">
+            <td>
+                  <code>Step</code>
+            </td>
+            <td>
+              <div class="doc-md-description">
+                <p>New instance of the class.</p>
+              </div>
+            </td>
+          </tr>
+      </tbody>
+    </table>
+
+    </div>
+
+</div>
+
+<div class="doc doc-object doc-function">
+
+
+<h3 id="workflows_manager.configuration.WorkflowStep.validate_all" class="doc doc-heading">
+            <code class="highlight language-python"><span class="n">validate_all</span><span class="p">()</span></code>
+
+<a href="#workflows_manager.configuration.WorkflowStep.validate_all" class="headerlink" title="Permanent link">&para;</a></h3>
+
+
+    <div class="doc doc-contents ">
+
+        <p>Validate the step. Check if the type is valid and if the step has all required attributes.</p>
 
     </div>
 
