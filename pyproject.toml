@@ -17,7 +17,7 @@ maintainers = [
 ]
 description = "Python CLI application that allows to run custom workflows."
 readme = "README.md"
-license = {file = "LICENSE.md"}
+license = "MIT"
 keywords = ["workflow", "workflows", "manager", "workflows-manager", "pipeline", "pipelines", "action", "step"]
 classifiers = [
   "License :: OSI Approved :: MIT License",
@@ -39,12 +39,6 @@ classifiers = [
   "Intended Audience :: Other Audience",
   "Intended Audience :: System Administrators",
   "Typing :: Typed",
-]
-
-[project.optional-dependencies]
-test = [
-  "pytest==8.3.3",
-  "coverage==7.6.4",
 ]
 
 [project.urls]
