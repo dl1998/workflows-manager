@@ -14,13 +14,13 @@ def get_variable(variables: Dict[str, BaseType], key_path: str, default: Any = N
     Get variable from dictionary by key.
 
     :param variables: The dictionary to search for the key.
-    :type variables: Dict[str, BASE_TYPE]
+    :type variables: Dict[str, BaseType]
     :param key_path: The key path to search for in the dictionary. The key path is a string with keys separated by dots.
     :type key_path: str
     :param default: The default value to return if the key is not found.
     :type default: Any
     :return: The value of the key in the dictionary or the default value if the key is not found.
-    :rtype: BASE_TYPE
+    :rtype: BaseType
     """
     path = key_path.split('.')
     value = variables
@@ -38,8 +38,9 @@ class ReferenceResolver:
     Class to resolve references in a dictionary.
 
     :param variables: The dictionary to resolve the references in.
-    :type variables: Dict[str, BASE_TYPE]
+    :type variables: Dict[str, BaseType]
     """
+    __variables: Dict[str, BaseType]
 
     def __init__(self, variables: Dict[str, BaseType]):
         self.__variables = variables
@@ -53,7 +54,7 @@ class ReferenceResolver:
         :param value: The value to substitute the placeholder in.
         :type value: str
         :return: The value with the placeholder substituted.
-        :rtype: BASE_TYPE
+        :rtype: BaseType
         """
         variable_name = match.group("variable")
         captured = match.group("captured")
@@ -70,7 +71,7 @@ class ReferenceResolver:
         :param key: The key to check for circular references.
         :type key: Optional[str]
         :return: The value with the placeholder substituted.
-        :rtype: Optional[BASE_TYPE]
+        :rtype: Optional[BaseType]
         """
         if not isinstance(value, str):
             return value
@@ -88,9 +89,9 @@ class ReferenceResolver:
         Get the elements of a container.
 
         :param container: The container to get the elements of. Can be a dictionary or a list.
-        :type container: Union[Dict[str, BASE_TYPE], List[BASE_TYPE]]
+        :type container: Union[Dict[str, BaseType], List[BaseType]]
         :return: The elements of the container.
-        :rtype: Union[ItemsView[str, BASE_TYPE], Iterator[Tuple[int, BASE_TYPE]]]
+        :rtype: Union[ItemsView[str, BaseType], Iterator[Tuple[int, BaseType]]]
         """
         if isinstance(container, dict):
             return container.items()
@@ -101,11 +102,11 @@ class ReferenceResolver:
         Resolve an element in a dictionary.
 
         :param element: The element to resolve.
-        :type element: BASE_TYPE
+        :type element: BaseType
         :param key: The key to check for circular references.
         :type key: Optional[str]
         :return: The resolved element.
-        :rtype: BASE_TYPE
+        :rtype: BaseType
         """
         while True:
             substitute = self.__substitute_value(element, key)
@@ -121,9 +122,9 @@ class ReferenceResolver:
         Resolve an element in a dictionary.
 
         :param element: The element to resolve.
-        :type element: BASE_TYPE
+        :type element: BaseType
         :return: The resolved element.
-        :rtype: BASE_TYPE
+        :rtype: BaseType
         """
         return self.__resolve_element(element)
 
@@ -132,7 +133,7 @@ class ReferenceResolver:
         Resolve the elements in a dictionary.
 
         :param elements: The elements to resolve.
-        :type elements: Union[Dict[str, BASE_TYPE], List[BASE_TYPE]]
+        :type elements: Union[Dict[str, BaseType], List[BaseType]]
         """
         for key_or_index, value in self.__get_elements(elements):
             if isinstance(value, (dict, list)):
@@ -149,7 +150,7 @@ class ReferenceResolver:
         Resolve the references in the dictionary.
 
         :return: The dictionary with the references resolved.
-        :rtype: Dict[str, BASE_TYPE]
+        :rtype: Dict[str, BaseType]
         """
         self.__resolve_elements(self.__variables)
         return self.__variables
