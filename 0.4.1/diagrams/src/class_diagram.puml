@@ -1,0 +1,427 @@
+@startuml
+
+!if %variable_exists("darkmode")
+    !include ../include/themes/dark.puml
+!else
+    !include ../include/themes/light.puml
+!endif
+
+package logging {}
+
+package threading {
+    class Thread {}
+}
+
+package "workflows_manager" {
+    package actions {
+        package list {
+            class ListWorkflows {
+                + logger: logging.Logger
+                + workflows_configuration: configuration.Configuration
+                + list()
+            }
+        }
+
+        package misc {
+            class InstanceParameter {
+                + name: str
+                + value: Any
+                + type: typing.Type
+            }
+
+            class InstanceParameters {
+                + parameters: Dict[str, InstanceParameter]
+                + from_step(step: workflow.Step): InstanceParameters
+            }
+
+            InstanceParameters ..> InstanceParameter : contains
+        }
+
+        package runner {
+            class ExceptionThread extends threading.Thread {
+                + exception: Optional[Exception]
+                + run()
+            }
+
+            class Runner {
+                + logger: logging.Logger
+                + workflows_configuration: configuration.Configuration
+                + workflow_name: str
+                + statuses_file: Optional[pathlib.Path]
+                + parameters: Dict[str, Any]
+                - __workflow_context: WorkflowContext
+                - __initialize_step_information(statuses: StepsInformation, step: StepUnion, previous_step: Optional[StepInformation], parent: Optional[StepInformation]): StepInformation
+                - __initialize_steps_information(statuses: StepsInformation, steps: List[StepUnion], previous_step: Optional[StepInformation], parent: Optional[StepInformation])
+                - __initialize_workflow_context()
+                - __get_step_parameters(step: Step, parameters: Dict[str, Any]): Dict[str, Any]
+                - __evaluate_parameters(parameters: Parameters, parent_parameters: Optional[Dict[str, Any]]): Dict[str, Any]
+                - __run_normal_step(step: NormalStep, step_status: StepInformation, parameters: Dict[str, Any])
+                - __run_workflow_step(step: WorkflowStep, step_status: StepInformation, parameters: Dict[str, Any])
+                - __run_parallel_steps(step: ParallelStep, step_status: StepInformation, parameters: Dict[str, Any])
+                - __update_step_name(step: Step, step_path: StepPath, parameters: Dict[str, Any])
+                - __update_template_parameters(step: Step, step_path: StepPath, parameters: Dict[str, Any])
+                - __run_step(step: StepUnion, parent_step_path: Optional[StepPath], parameters: Dict[str, Any])
+                - __run_steps(workflow_configuration: Workflow, parameters: Dict[str, Any], parent_step_path: Optional[StepPath])
+                - __generate_status_file()
+                + run()
+            }
+
+            Runner ..> ExceptionThread : uses
+        }
+
+        package validator {
+            class Validator {
+                + logger: logging.Logger
+                + workflows_configuration: configuration.Configuration
+                + workflow_name: str
+                + parameters: Dict[str, Any]
+                - __validate_workflow_step_parameters(step_configuration: configuration.Step, parameters: Set[str])
+                - __validate_parallel_step_parameters(step_configuration: configuration.Step, parameters: Set[str])
+                - __validate_normal_step_parameters(step_configuration: configuration.Step, parameters: Set[str])
+                - __validate_step_parameters(step_configuration: configuration.Step, parameters: Set[str])
+                - __validate_steps_parameters(workflow_configuration: configuration.Workflow, parameters: Set[str])
+                - __collect_normal_steps(steps: List[configuration.Step]): List[configuration.Step]
+                - __validate_registered_steps()
+                + validate(): bool
+            }
+        }
+
+        runner.Runner ..> misc.InstanceParameters : uses
+        validator.Validator ..> misc.InstanceParameters : uses
+    }
+
+    package utils {
+        package reference_resolver {
+            class "<<module>>" {
+                + BaseType: Type[Union[int, float, bool, str, list, dict]]
+                + CLEANUP_REGEX_PATTERN: re.Pattern[AnyStr]
+                + get_variable(variables: Dict[str, BaseType], key_path: str, default: Any): BaseType
+            }
+
+            class ReferenceResolver {
+                - __variables: Dict[str, BaseType]
+                - __substitute_placeholder(match: re.Match, value: str): BaseType
+                - __substitute_value(value: str, key: Optional[str]): Optional[BaseType]
+                - __get_elements(container: Union[Dict[str, BaseType], List[BaseType]]): Union[ItemsView[str, BaseType], Iterator[Tuple[int, BaseType]]]
+                - __resolve_element(element: BaseType, key: Optional[str]): BaseType
+                + resolve_element(element: BaseType): BaseType
+                - __resolve_elements(elements: Union[Dict[str, BaseType], List[BaseType]])
+                + resolve(): Dict[str, BaseType]
+            }
+
+            ReferenceResolver ..> "<<module>>" : uses
+        }
+    }
+
+    package logger {
+        class "<<module>>" {
+            + APPLICATION_NAME = 'workflows-manager'
+            + LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+            + LOG_DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
+            - __set_formatter(handler: logging.Handler, format_type: str, log_level: str)
+            + get_logger(log_level: str, log_file_path: Optional[str], console_format: str, file_format: str): logging.Logger
+        }
+
+        class JSONLogFormatter extends logging.Formatter {
+            + log_level: str
+            + format(record: logging.LogRecord) -> str
+        }
+
+        "<<module>>" ..> JSONLogFormatter : uses
+    }
+
+    package main {
+        class "<<module>>" {
+            + DEFAULT_STATUS_CODE: int
+            + DEFAULT_ERROR_STATUS_CODE: int
+            + EXCEPTION_TO_STATUS_CODE: Dict[Type[Exception], int]
+            + main(arguments: argparse.Namespace): int
+            + main_cli()
+        }
+    }
+
+    package command_arguments {
+        class "<<module>>" {
+            + PARAMETERS_DELIMITER: str = ':'
+            - __add_workflow_name_parameter(parser: ArgumentParser, help_text: str, with_default: bool)
+            - __add_configuration_file_parameter(parser)
+            - __create_configuration_group(parser: ArgumentParser)
+            - __create_logging_group(parser: ArgumentParser)
+            - __create_parameters_group(subparser: ArgumentParser)
+            - __configure_run_action_subparser(parser)
+            - __configure_validate_action_subparser(parser)
+            - __configure_list_action_subparser(parser)
+            - __configure_version_action_subparser(parser)
+            - __configure_action_subparsers(parser)
+            + get_args(): argparse.Namespace
+            - types_mapping: Dict[str, Union[typing.Type, typing.Callable]]
+            - __update_parameter(name: str, value: str, parameter_type: typing.Callable[[str], Any], parameters: Dict[str, Any])
+            - __add_parameters(parameters: Optional[List[str]], destination: Dict[str, Any], parameter_type: Optional[Callable[[str], Any]])
+            + get_parameters(namespace: argparse.Namespace) -> Dict[str, Any]
+        }
+    }
+
+    package dispatcher {
+        class "<<module>>" {
+            + MODULE_IMPORTS_ENVIRONMENT_VARIABLE: str = 'WORKFLOWS_MANAGER_IMPORTS'
+        }
+
+        enum DispatcherAction {
+            + VALIDATE = 'validate'
+            + RUN = 'run'
+            + LIST = 'list'
+            + from_str(action: str): DispatcherAction
+        }
+
+        class WorkflowDispatcher {
+            + logger: logging.Logger
+            + imports: List[pathlib.Path]
+            + configuration: configuration.Configuration
+            + workflow_name: str
+            + status_file: pathlib.Path
+            + parameters: Dict[str, Any]
+            - __collect_modules_from_path(path: pathlib.Path): List[str]
+            - __load_modules(package_path: pathlib.Path)
+            - __load_packages(import_paths: List[pathlib.Path])
+            + validate()
+            + run()
+            + list()
+            + dispatch(action: DispatcherAction)
+        }
+
+        enum ConfigurationFormat {
+            + YAML = 'yaml'
+            + JSON = 'json'
+        }
+
+        class WorkflowDispatcherBuilder {
+            - __logger: logging.Logger
+            - __disable_current_path_import: bool
+            - __imports: List[pathlib.Path]
+            - __configuration_file: pathlib.Path
+            - __configuration_file_format: ConfigurationFormat
+            - __workflow_name: str
+            - __status_file: pathlib.Path
+            - __parameters: Dict[str, Any]
+            + logger(logger: logging.Logger): WorkflowDispatcherBuilder
+            + disable_current_path_import(disable: bool): WorkflowDispatcherBuilder
+            + imports(imports: Optional[List[str]]): WorkflowDispatcherBuilder
+            + __set_default_configuration_file()
+            + configuration_file: Optional[Union[str, pathlib.Path]]: WorkflowDispatcherBuilder
+            + workflow_name(workflow_name: str): WorkflowDispatcherBuilder
+            + status_file(status_file: Union[str, pathlib.Path]): WorkflowDispatcherBuilder
+            + parameters(parameters: Dict[str, Any]): WorkflowDispatcherBuilder
+            - __get_combined_imports(): List[pathlib.Path]
+            - __check_workflow_exists(dispatcher: WorkflowDispatcher)
+            + build(): WorkflowDispatcher
+        }
+
+        WorkflowDispatcherBuilder "1" --* "1" ConfigurationFormat : contains
+        WorkflowDispatcherBuilder ..> WorkflowDispatcher : produce
+        WorkflowDispatcher ..> DispatcherAction : uses
+        WorkflowDispatcher ..> "<<module>>" : uses
+    }
+
+    package exceptions {
+        class InvalidConfiguration extends Exception {}
+        class MissingParameter extends InvalidConfiguration {}
+        class InvalidParameter extends InvalidConfiguration {}
+        class MissingStep extends Exception {}
+        class UnknownOption extends Exception {}
+    }
+
+    package workflow {
+        class "<<module>>" {
+            + steps: Steps
+        }
+
+        enum StepStatus {
+            + UNKNOWN = 'unknown'
+            + NOT_STARTED = 'not_started'
+            + RUNNING = 'running'
+            + SUCCESS = 'success'
+            + FAILED = 'failed'
+        }
+
+        class StepPath {
+            - __path: Optional[StepPath]
+            - __step_type: StepType
+            - __step_name: str
+            + type: str
+            + name: str
+        }
+
+        class StepInformation {
+            + path: StepPath
+            + status: StepStatus
+            + parameters: Optional[Dict]
+            + stdout: Optional[str]
+            + stderr: Optional[str]
+            + error: Optional[Exception]
+            + return_value: Optional[Any]
+            + previous_step: Optional[StepInformation]
+            + next_step: Optional[StepInformation]
+            + parent: Optional[StepInformation]
+            + children: Optional[List[StepInformation]]
+            + to_dict(): List[Dict]
+        }
+
+        class StepsInformation {
+            + steps: Dict[StepPath, StepInformation]
+            + get_step_information(step_path: StepPath): StepInformation
+            + first_step(): Optional[StepInformation]
+            + to_dict(): Dict
+        }
+
+        class WorkflowContext {
+            - __lock: threading.Lock
+            - __workflow_parameters: Dict
+            - __steps_information: StepsInformation
+            + steps_information: StepsInformation
+            + global_lock: threading.Lock
+            + get(key: str, default: Any): Any
+            + set(key: str, value: Any)
+            + get_step_information(step: StepPath): StepInformation
+        }
+
+        class Step {
+            + DEFAULT_LOGGER_PREFIX: str = 'runner'
+            + logger: logging.Logger
+            + workflow_context: WorkflowContext
+            + path: StepPath
+            + name: str
+            + default_logger_name: str
+            + information: StepInformation
+            + configure_logger()
+            + perform(*args: List, **kwargs: Dict): Any
+            - __update_status(step_status: StepStatus)
+            + success()
+            + fail()
+        }
+
+        class Steps {
+            + steps_register: Dict[str, Step]
+            + register(name: str): Callable[[Type[Step]], None]
+            + wrap_step(self: Step)
+        }
+
+        StepInformation "1" *-- "1" StepPath : contains
+        StepInformation "1" *-- "1" StepStatus : contains
+        StepsInformation ..> StepPath : uses
+        StepsInformation "1" *-- "1..*" StepInformation : contains
+        WorkflowContext "1" *-- "1" StepsInformation : contains
+        Step "1" *-- "1" WorkflowContext : contains
+        Step "1" *-- "1" StepPath : contains
+        Steps "1" *-- "1..*" Step : contains
+        "<<module>>" ..> Steps : uses
+    }
+
+    package "configuration" {
+        class Parameter {
+            + name: str
+            + value: Optional[Any]
+            + from_context: Optional[str]
+            + from_dict(data: dict) -> Parameter
+            + validate_all()
+        }
+
+        class Parameters {
+            + elements: List[Parameter]
+            + from_dict(data: List[Dict]) -> Parameters
+            + validate_all()
+        }
+
+        enum StepType {
+            + NORMAL = 'normal'
+            + PARALLEL = 'parallel'
+            + WORKFLOWS = 'workflows'
+            + from_str(value: str) -> StepType
+        }
+
+        class Step {
+            + name: str
+            + parameters: Parameters
+            + stop_on_error: bool
+            + type: StepType
+            + from_dict(data: dict): Step
+            + validate_all()
+        }
+
+        class NormalStep extends Step {
+            + id: Optional[str]
+            + capture_stdout: bool
+            + capture_stderr: bool
+            + from_dict(data: dict): NormalStep
+            + validate_all()
+        }
+
+        class WorkflowStep extends Step {
+            + workflow: str
+            + from_dict(data: dict): WorkflowStep
+            + validate_all()
+        }
+
+        class ParallelStep extends Step {
+            + parallels: Steps
+            + from_dict(data: dict): ParallelStep
+            + validate_all()
+        }
+
+        class Steps {
+            + elements: List[Step]
+            + from_dict(data: List[Dict]) -> Steps
+            + validate_all()
+        }
+
+        class Workflow {
+            + name: str
+            + steps: Steps
+            + parameters: Parameters
+            + from_dict(data: dict) -> Workflow
+            + validate_all()
+        }
+
+        class Workflows {
+            + elements: List[Workflow]
+            + from_dict(data: dict) -> Workflows
+            + validate_all()
+        }
+
+        class Configuration {
+            + workflows: Workflows
+            + parameters: Parameters
+            + from_dict(data: dict) -> Configuration
+            - __from_file(file_path: Union[str, Path], parser: Callable[[Any], dict]): Configuration
+            + from_yaml(file_path: Union[str, Path]) -> Configuration
+            + from_json(file_path: Union[str, Path]) -> Configuration
+            + validate_all()
+        }
+
+        Parameters "1" *-- "0..*" Parameter : contains
+        Step "1" *-- "1" StepType : contains
+        Step "1" *-- "1" Parameters : contains
+        Steps "1" *-- "1..*" Step : contains
+        Workflow "1" *-- "1" Steps : contains
+        Workflow "1" *-- "1" Parameters : contains
+        Workflows "1" *-- "1..*" Workflow : contains
+        Configuration "1" *-- "1" Workflows : contains
+        Configuration "1" *-- "1" Parameters : contains
+    }
+
+    "workflows_manager.workflow.StepPath" *-- "workflows_manager.configuration.StepType" : contains
+    "workflows_manager.dispatcher.<<module>>" ..> "workflows_manager.workflow.Step" : uses
+    "workflows_manager.dispatcher.WorkflowDispatcher" ..> "workflows_manager.actions.runner.Runner" : uses
+    "workflows_manager.dispatcher.WorkflowDispatcher" ..> "workflows_manager.actions.validator.Validator" : uses
+    "workflows_manager.dispatcher.WorkflowDispatcher" ..> "workflows_manager.actions.list.ListWorkflows" : uses
+    "workflows_manager.actions.runner.Runner" ..> "workflows_manager.utils.reference_resolver.ReferenceResolver" : uses
+    "workflows_manager.actions.validator.Validator" ..> "workflows_manager.exceptions.InvalidConfiguration" : uses
+    "workflows_manager.actions.validator.Validator" ..> "workflows_manager.exceptions.MissingParameter" : uses
+    "workflows_manager.actions.validator.Validator" ..> "workflows_manager.exceptions.InvalidParameter" : uses
+    "workflows_manager.actions.validator.Validator" ..> "workflows_manager.exceptions.MissingStep" : uses
+    "workflows_manager.actions.validator.Validator" ..> "workflows_manager.exceptions.UnknownOption" : uses
+    "workflows_manager.main.<<module>>" ..> "workflows_manager.logger.<<module>>" : uses
+    "workflows_manager.main.<<module>>" ..> "workflows_manager.dispatcher.WorkflowDispatcherBuilder" : uses
+    "workflows_manager.main.<<module>>" ..> "workflows_manager.dispatcher.DispatcherAction" : uses
+    "workflows_manager.main.<<module>>" ..> "workflows_manager.command_arguments.<<module>>" : uses
+}
+@enduml
