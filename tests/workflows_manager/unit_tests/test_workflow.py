@@ -46,10 +46,7 @@ def steps_information_dictionary():
             'name': 'workflow_step',
             'status': StepStatus.RUNNING.value,
             'parameters': None,
-            'stdout': None,
-            'stderr': None,
             'error': None,
-            'return_value': None,
             'children': [
                 {
                     'type': StepType.NORMAL.value,
@@ -60,17 +57,13 @@ def steps_information_dictionary():
                     'stderr': None,
                     'error': None,
                     'return_value': None,
-                    'children': None,
                 },
                 {
                     'type': StepType.PARALLEL.value,
                     'name': 'parallel_step',
                     'status': StepStatus.SUCCESS.value,
                     'parameters': None,
-                    'stdout': None,
-                    'stderr': None,
                     'error': None,
-                    'return_value': None,
                     'children': [
                         {
                             'type': StepType.NORMAL.value,
@@ -81,7 +74,6 @@ def steps_information_dictionary():
                             'stderr': None,
                             'error': None,
                             'return_value': None,
-                            'children': None,
                         }
                     ]
                 }

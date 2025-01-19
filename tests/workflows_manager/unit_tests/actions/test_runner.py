@@ -43,7 +43,6 @@ class TestRunner:
         expected_error = 'Missing the following required parameters: [\'integer\']'
         expected_status = 'failed'
         expected_step = {
-            'children': None,
             'error': expected_error,
             'name': 'Normal Step',
             'parameters': None,

@@ -133,12 +133,18 @@ class StepInformation:
                 'name': step.path.name,
                 'status': step.status.value,
                 'parameters': step.parameters,
-                'stdout': step.stdout,
-                'stderr': step.stderr,
                 'error': str(step.error) if step.error else None,
-                'return_value': step.return_value,
-                'children': children,
             }
+            if step.path.type == StepType.NORMAL:
+                data.update({
+                    'stdout': step.stdout,
+                    'stderr': step.stderr,
+                    'return_value': step.return_value,
+                })
+            elif step.path.type in (StepType.WORKFLOW, StepType.PARALLEL):
+                data.update({
+                    'children': children,
+                })
             dictionary_steps.append(data)
             step = step.next_step
         return dictionary_steps
