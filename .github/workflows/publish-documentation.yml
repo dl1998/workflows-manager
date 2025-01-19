@@ -1,6 +1,11 @@
 name: Publish Documentation
 on:
   workflow_dispatch:
+    inputs:
+      force_update:
+        type: boolean
+        description: "Force update even if version exists"
+        default: false
   release:
     types: [published]
 permissions:
@@ -23,7 +28,20 @@ jobs:
       - name: Install Hatch
         run: python3 -m pip install hatch
       - name: Retrieve version
+        id: get_version
         run: echo "WORKFLOWS_VERSION=$(hatch version)" >> "$GITHUB_ENV"
+      - name: Check if documentation version exists
+        id: check_docs
+        run: |
+          FORCE_UPDATE=${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force_update == 'true' }}
+          if [ "$FORCE_UPDATE" != "true" ]; then
+            VERSION_URL="https://dl1998.github.io/workflows-manager/${{ env.WORKFLOWS_VERSION }}/"
+            HTTP_STATUS=$(curl -o /dev/null -s -w "%{http_code}" "$VERSION_URL")
+            if [ "$HTTP_STATUS" -eq 301 ]; then
+              echo "Documentation version ${{ env.WORKFLOWS_VERSION }} already exists."
+              exit 1
+            fi
+          fi
       - name: Set User
         run: |
             git config --local user.name "GitHub Actions"

@@ -1,5 +1,11 @@
 name: Release New Version
 on:
+  workflow_dispatch:
+    inputs:
+      force_update:
+        type: boolean
+        description: "Force update even if version exists"
+        default: false
   release:
     types: [published]
 env:
@@ -26,9 +32,27 @@ jobs:
           name: linux-dist
           path: dist/
 
+  check-version-pypi:
+    name: Check if version exists on PyPI
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Hatch
+        run: python3 -m pip install hatch
+      - name: Get Version from Hatch
+        id: get_version
+        run: |
+          VERSION=$(hatch version)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - name: Check PyPI for existing version
+        id: check_pypi
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" https://pypi.org/pypi/${{ env.REPOSITORY_NAME }}/${{ env.VERSION }}/json
+        continue-on-error: true
+
   publish-library-dev:
     name: Publish new release on dev
-    needs: ['create-release']
+    needs: ['create-release', 'check-version-pypi']
+    if: steps.check_pypi.outputs.http_code != '200' || github.event.inputs.force_update == 'true'
     permissions: write-all
     runs-on: ubuntu-latest
     environment:
@@ -50,6 +74,7 @@ jobs:
   publish-library-prod:
     name: Publish new release on prod
     needs: ['create-release', 'publish-library-dev']
+    if: steps.check_pypi.outputs.http_code != '200' || github.event.inputs.force_update == 'true'
     permissions: write-all
     runs-on: ubuntu-latest
     environment:
@@ -66,9 +91,26 @@ jobs:
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
 
+  check-version-docker:
+    name: Check if version exists on Docker Hub
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install Hatch
+        run: python3 -m pip install hatch
+      - name: Get Version from Hatch
+        id: get_version
+        run: |
+          VERSION=$(hatch version)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+      - name: Check Docker Hub for existing version
+        run: |
+          curl -s -o /dev/null -w "%{http_code}" https://hub.docker.com/v2/repositories/${{ github.repository }}/tags/${{ env.VERSION }}
+        continue-on-error: true
+
   build-and-push-docker:
     name: Build and Push Docker Image
-    needs: ['create-release']
+    needs: ['create-release', 'check-version-docker']
+    if: steps.check-version-docker.outputs.http_code != '200' || github.event.inputs.force_update == 'true'
     runs-on: ubuntu-latest
     permissions: write-all
     environment:
